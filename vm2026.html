@@ -3,92 +3,437 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VM 2026 — Vennekonkurransen</title>
+<title>Happyfam sin tippekonkurranse – VM 2026</title>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:15px;color:#1a1a1a;background:#f5f5f0;min-height:100vh}
-.container{max-width:780px;margin:0 auto;padding:1rem}
-.tabs{display:flex;gap:0;border-bottom:1px solid #e0e0e0;margin-bottom:1.5rem;overflow-x:auto;background:#fff;border-radius:12px 12px 0 0;padding:0 1rem}
-.tab{padding:12px 18px;cursor:pointer;font-size:14px;color:#666;border-bottom:2px solid transparent;white-space:nowrap;transition:color .15s}
-.tab.active{color:#1a1a1a;border-bottom:2px solid #1a1a1a;font-weight:500}
-.tab:hover{color:#1a1a1a}
-.page{display:none}.page.active{display:block}
-h2{font-size:18px;font-weight:500;margin-bottom:1rem}
-h3{font-size:15px;font-weight:500;margin-bottom:.75rem;color:#555}
-.card{background:#fff;border:0.5px solid #e0e0e0;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem}
-.q-item{padding:12px 0;border-bottom:0.5px solid #eee}
-.q-item:last-child{border-bottom:none}
-.q-pts{font-size:12px;font-weight:500;color:#1855a3;background:#e8f0fe;padding:2px 8px;border-radius:6px;display:inline-block}
-.q-input input{width:100%;padding:8px 10px;border:0.5px solid #ccc;border-radius:8px;font-size:14px;margin-top:6px}
-.q-input input:focus{outline:2px solid #1855a3;border-color:transparent}
-.group-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:1rem;margin-bottom:1rem}
-.group-card{background:#fff;border:0.5px solid #e0e0e0;border-radius:12px;padding:1rem}
-.group-title{font-size:12px;font-weight:500;color:#888;margin-bottom:.75rem;text-transform:uppercase;letter-spacing:.05em}
-.match-row{display:flex;align-items:center;gap:6px;padding:6px 0;border-bottom:0.5px solid #f0f0f0;font-size:13px}
-.match-row:last-child{border-bottom:none}
-.team{flex:1;text-align:center;font-size:12px;line-height:1.3}
-.team.norway{font-weight:600;color:#003087}
-.score-box{display:flex;gap:4px;align-items:center;flex-shrink:0}
-.score-box input{width:38px;text-align:center;padding:5px 4px;border:0.5px solid #ccc;border-radius:6px;font-size:13px}
-.score-box input:focus{outline:2px solid #1855a3}
-.sep{color:#bbb;font-size:12px}
-.btn{padding:9px 16px;border:0.5px solid #ccc;border-radius:8px;cursor:pointer;font-size:13px;background:#fff;color:#1a1a1a;font-weight:500;transition:all .15s}
-.btn:hover{background:#f5f5f5}
-.btn:active{transform:scale(.98)}
-.btn.primary{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
-.btn.primary:hover{background:#333}
-.btn.success{background:#1a7a4a;color:#fff;border-color:#1a7a4a}
-.btn.danger{color:#c0392b;border-color:#f0c0bb}
-.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem;align-items:center}
-.lb-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:0.5px solid #eee}
-.lb-row:last-child{border-bottom:none}
-.lb-rank{width:32px;font-weight:500;font-size:18px;text-align:center}
-.lb-name{flex:1;font-weight:500}
-.lb-pts{font-weight:500;font-size:18px}
-.lb-detail{font-size:12px;color:#888;margin-top:2px}
-.avatar{width:38px;height:38px;border-radius:50%;background:#e8f0fe;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:#1855a3;flex-shrink:0}
-.notice{background:#fff8e1;border:0.5px solid #f0c040;color:#7a5800;border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:1rem}
-.stage-header{font-size:14px;font-weight:500;background:#f5f5f0;padding:8px 12px;border-radius:8px;margin:1.25rem 0 .75rem}
-.ko-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;margin-bottom:1rem}
-.ko-match{background:#fff;border:0.5px solid #e0e0e0;border-radius:12px;padding:.75rem 1rem}
-.ko-label{font-size:11px;color:#aaa;margin-bottom:6px}
-.ko-teams{display:flex;align-items:center;gap:8px;font-size:13px}
-select{padding:8px 10px;border:0.5px solid #ccc;border-radius:8px;font-size:13px;background:#fff;cursor:pointer}
-.hero{text-align:center;padding:2rem 1rem 1.5rem;background:#fff;border-radius:12px;margin-bottom:1.5rem;border:0.5px solid #e0e0e0}
-.hero h1{font-size:24px;font-weight:500;margin-bottom:.5rem}
-.hero p{font-size:14px;color:#777}
-.deadline-badge{font-size:12px;background:#fce8e8;color:#b71c1c;border-radius:6px;padding:3px 8px;display:inline-block;margin-top:6px}
-.new-user-form{background:#fff;border-radius:12px;border:0.5px solid #e0e0e0;padding:1.5rem;margin-bottom:1.5rem}
-.new-user-form .field{display:flex;gap:8px;flex-wrap:wrap;margin-top:1rem}
-.new-user-form .field input{flex:1;min-width:160px;padding:8px 12px;border:0.5px solid #ccc;border-radius:8px;font-size:14px}
-.user-bar{display:flex;align-items:center;gap:10px;margin-bottom:1rem;padding:10px 14px;background:#fff;border-radius:8px;border:0.5px solid #e0e0e0}
-.pts-bar{height:5px;background:#eee;border-radius:3px;width:100%;margin-top:6px}
-.pts-bar-fill{height:5px;background:#1a1a1a;border-radius:3px;transition:width .5s}
-.toast{position:fixed;bottom:24px;right:24px;z-index:999;background:#1a7a4a;color:#fff;border-radius:10px;padding:12px 18px;font-size:14px;font-weight:500;box-shadow:0 4px 12px rgba(0,0,0,.2);animation:fadeIn .2s}
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-.spinner{display:inline-block;width:16px;height:16px;border:2px solid #ccc;border-top-color:#1a1a1a;border-radius:50%;animation:spin .6s linear infinite;vertical-align:-3px;margin-right:6px}
-@keyframes spin{to{transform:rotate(360deg)}}
-.badge-norway{background:#003087;color:#fff;font-size:10px;padding:1px 5px;border-radius:4px;margin-left:4px;vertical-align:middle}
-table.rules-table{width:100%;border-collapse:collapse;font-size:14px}
-table.rules-table tr{border-bottom:0.5px solid #eee}
-table.rules-table tr:last-child{border-bottom:none}
-table.rules-table td{padding:9px 0}
-table.rules-table td:last-child{text-align:right;font-weight:500;color:#1855a3}
-.config-warning{background:#fff3cd;border:1px solid #ffc107;border-radius:10px;padding:1.25rem;margin-bottom:1.5rem;font-size:14px;line-height:1.6}
-.config-warning strong{display:block;font-size:15px;margin-bottom:.5rem}
-.config-warning code{background:#eee;border-radius:4px;padding:2px 6px;font-size:13px;font-family:monospace}
-@media(max-width:520px){.group-grid{grid-template-columns:1fr}.ko-grid{grid-template-columns:1fr}.btn-row{gap:6px}.hero h1{font-size:20px}}
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --red: #EF3340;
+    --blue: #003087;
+    --white: #FFFFFF;
+    --light: #f4f6fb;
+    --card: #fff;
+    --shadow: 0 2px 16px rgba(0,48,135,0.10);
+    --radius: 14px;
+  }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--light); color: #222; min-height: 100vh; }
+
+  /* HERO */
+  .hero {
+    background: linear-gradient(135deg, var(--blue) 0%, #001a5c 60%, #1a0010 100%);
+    color: var(--white);
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+    min-height: 280px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .hero-svg-bg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .hero-content { position: relative; z-index: 2; text-align: center; padding: 32px 16px 24px; }
+  .hero h1 { font-size: clamp(1.6rem, 5vw, 2.8rem); font-weight: 900; letter-spacing: 1px; text-shadow: 0 2px 12px rgba(0,0,0,0.4); }
+  .hero .subtitle { font-size: clamp(1.1rem, 3vw, 1.6rem); font-weight: 700; color: #ffd700; margin-top: 4px; text-shadow: 0 1px 8px rgba(0,0,0,0.4); }
+  .hero .tagline { font-size: 0.95rem; opacity: 0.85; margin-top: 8px; }
+  .countdown-badge {
+    display: inline-block;
+    background: rgba(239,51,64,0.92);
+    border: 2px solid #ffd700;
+    border-radius: 30px;
+    padding: 8px 22px;
+    margin-top: 14px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: #fff;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  }
+
+  /* AUTH */
+  .auth-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,40,0.7); z-index: 100;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .auth-box {
+    background: var(--white); border-radius: var(--radius); padding: 36px 32px;
+    max-width: 380px; width: 90%; box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+  }
+  .auth-box h2 { color: var(--blue); margin-bottom: 6px; font-size: 1.4rem; }
+  .auth-box p { color: #555; margin-bottom: 20px; font-size: 0.95rem; }
+  .auth-box input {
+    width: 100%; padding: 11px 14px; border: 2px solid #dde3f0; border-radius: 8px;
+    font-size: 1rem; margin-bottom: 12px; outline: none; transition: border 0.2s;
+  }
+  .auth-box input:focus { border-color: var(--blue); }
+  .auth-error { color: var(--red); font-size: 0.9rem; margin-bottom: 10px; font-weight: 600; min-height: 1.2em; }
+  .btn {
+    display: inline-block; padding: 11px 24px; border-radius: 8px; border: none;
+    font-size: 1rem; font-weight: 700; cursor: pointer; transition: all 0.18s;
+  }
+  .btn-primary { background: var(--blue); color: #fff; }
+  .btn-primary:hover { background: #0042b8; }
+  .btn-red { background: var(--red); color: #fff; }
+  .btn-red:hover { background: #c0202d; }
+  .btn-outline { background: transparent; border: 2px solid var(--blue); color: var(--blue); }
+  .btn-outline:hover { background: var(--blue); color: #fff; }
+  .btn-sm { padding: 6px 14px; font-size: 0.87rem; }
+  .btn-gold { background: #ffd700; color: #222; }
+  .btn-gold:hover { background: #e6c200; }
+
+  /* TOPBAR */
+  .topbar {
+    background: var(--blue); color: #fff; padding: 10px 20px;
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+  }
+  .topbar .user-info { font-size: 0.95rem; }
+  .topbar .user-info strong { color: #ffd700; }
+
+  /* TABS */
+  .tabs { display: flex; background: var(--white); border-bottom: 3px solid var(--blue); overflow-x: auto; }
+  .tab-btn {
+    flex: 1; min-width: 80px; padding: 13px 8px; background: none; border: none;
+    font-size: 0.92rem; font-weight: 700; color: #555; cursor: pointer; transition: all 0.18s;
+    white-space: nowrap;
+  }
+  .tab-btn.active { background: var(--blue); color: #fff; }
+  .tab-btn:hover:not(.active) { background: #e8edf8; color: var(--blue); }
+
+  /* SECTIONS */
+  .section { display: none; padding: 20px 16px; max-width: 900px; margin: 0 auto; }
+  .section.active { display: block; }
+
+  /* CARDS */
+  .card {
+    background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow);
+    padding: 20px; margin-bottom: 18px;
+  }
+  .card h3 { color: var(--blue); margin-bottom: 14px; font-size: 1.1rem; border-bottom: 2px solid #e8edf8; padding-bottom: 8px; }
+
+  /* SPECIAL QUESTIONS */
+  .special-item { margin-bottom: 18px; }
+  .special-item label { display: block; font-weight: 600; margin-bottom: 6px; color: #333; }
+  .special-item .points { font-size: 0.82rem; background: #ffd700; color: #333; border-radius: 10px; padding: 2px 8px; font-weight: 700; margin-left: 6px; }
+  .special-item input, .special-item select {
+    width: 100%; padding: 10px 12px; border: 2px solid #dde3f0; border-radius: 8px;
+    font-size: 0.97rem; outline: none; transition: border 0.2s;
+  }
+  .special-item input:focus, .special-item select:focus { border-color: var(--blue); }
+  .special-item input:disabled, .special-item select:disabled { background: #f0f0f0; color: #888; cursor: not-allowed; }
+  .locked-msg { font-size: 0.82rem; color: var(--red); margin-top: 4px; }
+
+  /* GROUP MATCHES */
+  .group-header {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--blue); color: #fff; padding: 10px 16px; border-radius: 10px 10px 0 0;
+    font-weight: 700; font-size: 1rem;
+  }
+  .group-header.norway { background: linear-gradient(90deg, var(--blue) 60%, var(--red)); }
+  .group-matches { background: #fff; border: 2px solid #e0e8f8; border-top: none; border-radius: 0 0 10px 10px; margin-bottom: 16px; }
+  .match-row {
+    display: flex; align-items: center; padding: 10px 14px; border-bottom: 1px solid #f0f4fc;
+    flex-wrap: wrap; gap: 6px;
+  }
+  .match-row:last-child { border-bottom: none; }
+  .match-teams { flex: 1; min-width: 160px; font-weight: 600; font-size: 0.93rem; }
+  .match-teams .norway-team { color: var(--blue); font-weight: 800; }
+  .score-inputs { display: flex; align-items: center; gap: 6px; }
+  .score-inputs input {
+    width: 42px; text-align: center; padding: 6px 4px; border: 2px solid #dde3f0;
+    border-radius: 6px; font-size: 1rem; font-weight: 700; outline: none; transition: border 0.2s;
+  }
+  .score-inputs input:focus { border-color: var(--blue); }
+  .score-inputs input:disabled { background: #f0f0f0; color: #888; cursor: not-allowed; }
+  .score-sep { font-weight: 900; font-size: 1.1rem; color: #888; }
+  .match-locked { font-size: 0.75rem; color: var(--red); font-weight: 600; }
+
+  /* GROUP FILTER */
+  .group-filter { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; align-items: center; }
+  .group-filter label { font-weight: 700; color: var(--blue); margin-right: 4px; }
+  .group-btn {
+    padding: 5px 13px; border-radius: 20px; border: 2px solid var(--blue);
+    background: #fff; color: var(--blue); font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: all 0.15s;
+  }
+  .group-btn.active, .group-btn:hover { background: var(--blue); color: #fff; }
+  .group-btn.norway-group { border-color: var(--red); color: var(--red); }
+  .group-btn.norway-group.active, .group-btn.norway-group:hover { background: var(--red); color: #fff; border-color: var(--red); }
+
+  /* KNOCKOUT */
+  .ko-round-title { font-weight: 800; color: var(--blue); font-size: 1.05rem; margin: 18px 0 8px; border-left: 4px solid var(--red); padding-left: 10px; }
+
+  /* SAVE BAR */
+  .save-bar {
+    position: sticky; bottom: 0; background: var(--blue); color: #fff;
+    padding: 12px 20px; display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 8px; z-index: 10; box-shadow: 0 -2px 16px rgba(0,0,0,0.15);
+  }
+  .save-msg { font-size: 0.92rem; opacity: 0.85; }
+  .save-status { font-size: 0.88rem; color: #ffd700; font-weight: 700; }
+
+  /* LEADERBOARD */
+  .lb-row {
+    display: flex; align-items: center; padding: 12px 16px; border-bottom: 1px solid #f0f4fc;
+    gap: 12px;
+  }
+  .lb-rank { font-size: 1.4rem; width: 36px; text-align: center; }
+  .lb-name { flex: 1; font-weight: 700; font-size: 1rem; }
+  .lb-name.is-me { color: var(--blue); }
+  .lb-points { font-weight: 800; font-size: 1.1rem; color: var(--red); min-width: 48px; text-align: right; }
+  .lb-bar-wrap { flex: 2; background: #e8edf8; border-radius: 6px; height: 8px; min-width: 60px; }
+  .lb-bar { height: 8px; border-radius: 6px; background: linear-gradient(90deg, var(--blue), var(--red)); }
+
+  /* RULES */
+  .rules-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+  .rules-table th { background: var(--blue); color: #fff; padding: 9px 12px; text-align: left; }
+  .rules-table td { padding: 8px 12px; border-bottom: 1px solid #eee; }
+  .rules-table tr:nth-child(even) td { background: #f4f6fb; }
+
+  /* ADMIN */
+  .admin-section { background: #fff8f8; border: 2px solid var(--red); border-radius: var(--radius); padding: 20px; margin-bottom: 18px; }
+  .admin-section h3 { color: var(--red); margin-bottom: 14px; }
+  .admin-input-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+  .admin-input-row label { min-width: 180px; font-weight: 600; font-size: 0.9rem; }
+  .admin-input-row input { flex: 1; min-width: 120px; padding: 7px 10px; border: 2px solid #dde3f0; border-radius: 6px; font-size: 0.9rem; }
+
+  /* MISC */
+  .badge { display: inline-block; background: var(--red); color: #fff; border-radius: 10px; padding: 2px 9px; font-size: 0.78rem; font-weight: 700; }
+  .badge-blue { background: var(--blue); }
+  .badge-gold { background: #ffd700; color: #333; }
+  .random-bar { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; align-items: center; }
+
+  @media (max-width: 520px) {
+    .auth-box { padding: 24px 16px; }
+    .match-row { flex-direction: column; align-items: flex-start; }
+    .hero h1 { font-size: 1.4rem; }
+  }
 </style>
 </head>
 <body>
-<div class="container">
 
-<!-- =====================================================
-     FIREBASE KONFIGURASJON
-     Bytt ut verdiene nedenfor med din egen Firebase config.
-     Finn den i Firebase Console → Project settings → Your apps
-     ===================================================== -->
+<!-- AUTH OVERLAY -->
+<div class="auth-overlay" id="authOverlay">
+  <div class="auth-box">
+    <h2>&#127475;&#127476; Happyfam VM 2026</h2>
+    <p>Skriv inn navnet ditt og PIN-kode for å delta i tippekonkurransen!</p>
+    <input type="text" id="authName" placeholder="Ditt navn" autocomplete="off" maxlength="40" />
+    <input type="password" id="authPin" placeholder="4-sifret PIN-kode" maxlength="4" inputmode="numeric" pattern="[0-9]*" />
+    <div class="auth-error" id="authError"></div>
+    <button class="btn btn-primary" style="width:100%" onclick="doLogin()">Logg inn / Registrer</button>
+    <p style="margin-top:12px;font-size:0.82rem;color:#888">Ny bruker? Velg en PIN du vil huske. Eksisterende bruker? Skriv inn din PIN.</p>
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <svg class="hero-svg-bg" viewBox="0 0 900 280" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+    <!-- Stars scattered -->
+    <g opacity="0.20">
+      <polygon points="60,30 63,42 75,42 65,50 68,62 60,54 52,62 55,50 45,42 57,42" fill="#ffd700"/>
+      <polygon points="820,20 823,32 835,32 825,40 828,52 820,44 812,52 815,40 805,32 817,32" fill="#ffd700"/>
+      <polygon points="150,200 152,208 160,208 154,213 156,221 150,216 144,221 146,213 140,208 148,208" fill="#ffd700"/>
+      <polygon points="750,180 752,188 760,188 754,193 756,201 750,196 744,201 746,193 740,188 748,188" fill="#ffd700"/>
+      <polygon points="400,10 402,18 410,18 404,23 406,31 400,26 394,31 396,23 390,18 398,18" fill="#ffd700"/>
+      <polygon points="550,225 552,233 560,233 554,238 556,246 550,241 544,246 546,238 540,233 548,233" fill="#ffd700"/>
+      <polygon points="250,50 252,58 260,58 254,63 256,71 250,66 244,71 246,63 240,58 248,58" fill="#ffd700"/>
+      <polygon points="680,60 682,68 690,68 684,73 686,81 680,76 674,81 676,73 670,68 678,68" fill="#ffd700"/>
+      <polygon points="480,240 482,248 490,248 484,253 486,261 480,256 474,261 476,253 470,248 478,248" fill="#ffd700"/>
+    </g>
+    <!-- Norwegian flag left decorative -->
+    <g transform="translate(30,60)" opacity="0.50">
+      <rect width="90" height="60" fill="#EF3340" rx="3"/>
+      <rect x="22" y="0" width="12" height="60" fill="#003087"/>
+      <rect x="0" y="22" width="90" height="12" fill="#003087"/>
+      <rect x="23" y="0" width="10" height="60" fill="#fff"/>
+      <rect x="0" y="23" width="90" height="10" fill="#fff"/>
+    </g>
+    <!-- Norwegian flag right decorative -->
+    <g transform="translate(778,76)" opacity="0.42">
+      <rect width="75" height="50" fill="#EF3340" rx="3"/>
+      <rect x="18" y="0" width="10" height="50" fill="#003087"/>
+      <rect x="0" y="18" width="75" height="10" fill="#003087"/>
+      <rect x="19" y="0" width="8" height="50" fill="#fff"/>
+      <rect x="0" y="19" width="75" height="8" fill="#fff"/>
+    </g>
+    <!-- Football right side -->
+    <g transform="translate(744,14)" opacity="0.18">
+      <circle cx="54" cy="54" r="52" fill="#fff" stroke="#003087" stroke-width="3"/>
+      <circle cx="54" cy="54" r="14" fill="#003087"/>
+      <line x1="54" y1="2" x2="54" y2="106" stroke="#003087" stroke-width="2.5"/>
+      <line x1="2" y1="54" x2="106" y2="54" stroke="#003087" stroke-width="2.5"/>
+      <line x1="16" y1="16" x2="92" y2="92" stroke="#003087" stroke-width="2"/>
+      <line x1="92" y1="16" x2="16" y2="92" stroke="#003087" stroke-width="2"/>
+    </g>
+    <!-- Football small left -->
+    <g transform="translate(110,150)" opacity="0.13">
+      <circle cx="36" cy="36" r="34" fill="#fff" stroke="#003087" stroke-width="2.5"/>
+      <circle cx="36" cy="36" r="10" fill="#003087"/>
+      <line x1="36" y1="2" x2="36" y2="70" stroke="#003087" stroke-width="2"/>
+      <line x1="2" y1="36" x2="70" y2="36" stroke="#003087" stroke-width="2"/>
+    </g>
+    <!-- Confetti dots -->
+    <g opacity="0.25">
+      <circle cx="200" cy="40" r="6" fill="#EF3340"/>
+      <circle cx="700" cy="240" r="5" fill="#EF3340"/>
+      <circle cx="100" cy="235" r="7" fill="#ffd700"/>
+      <circle cx="855" cy="145" r="5" fill="#ffd700"/>
+      <circle cx="350" cy="262" r="5" fill="#fff"/>
+      <circle cx="600" cy="28" r="6" fill="#fff"/>
+      <circle cx="480" cy="22" r="4" fill="#EF3340"/>
+      <circle cx="320" cy="240" r="4" fill="#003087"/>
+      <circle cx="620" cy="245" r="5" fill="#ffd700"/>
+    </g>
+    <!-- Red bottom stripe -->
+    <rect x="0" y="248" width="900" height="32" fill="#EF3340" opacity="0.16"/>
+    <!-- Subtle center glow -->
+    <ellipse cx="450" cy="140" rx="280" ry="100" fill="#fff" opacity="0.03"/>
+  </svg>
+  <div class="hero-content">
+    <div style="font-size:2.4rem;margin-bottom:6px;">&#9917; &#127475;&#127476; &#127942;</div>
+    <h1>Happyfam sin tippekonkurranse</h1>
+    <div class="subtitle">VM 2026 &#8212; Norges f&#248;rste VM siden 1998!</div>
+    <div class="tagline">Haaland #9 &middot; &#216;degaard #10 &middot; Nusa &middot; Trener: St&#229;le Solbakken</div>
+    <div class="countdown-badge" id="countdownBadge">&#9203; Laster...</div>
+  </div>
+</div>
+
+<!-- TOPBAR -->
+<div class="topbar" id="topbar" style="display:none">
+  <div class="user-info">Innlogget som: <strong id="topbarName"></strong></div>
+  <button class="btn btn-sm btn-red" onclick="doLogout()">Logg ut</button>
+</div>
+
+<!-- TABS -->
+<div class="tabs" id="mainTabs" style="display:none">
+  <button class="tab-btn active" onclick="showTab('special')">&#11088; Mine tips</button>
+  <button class="tab-btn" onclick="showTab('matches')">&#128197; Kampene</button>
+  <button class="tab-btn" onclick="showTab('leaderboard')">&#127942; Ledertavle</button>
+  <button class="tab-btn" onclick="showTab('rules')">&#128203; Regler</button>
+</div>
+
+<!-- SPECIAL QUESTIONS -->
+<div class="section active" id="sec-special">
+  <div class="card">
+    <h3>&#11088; Spesialsp&#248;rsm&#229;l</h3>
+    <div id="specialDeadlineMsg" style="margin-bottom:14px"></div>
+    <div class="special-item">
+      <label>Hvilket lag vinner VM? <span class="points">200p</span></label>
+      <input type="text" id="sq_winner" placeholder="F.eks. Norge" list="allTeamsList" autocomplete="off" />
+    </div>
+    <div class="special-item">
+      <label>Hvem taper i finalen? <span class="points">100p</span></label>
+      <input type="text" id="sq_finalist" placeholder="F.eks. Brasil" list="allTeamsList" autocomplete="off" />
+    </div>
+    <div class="special-item">
+      <label>Hvem scorer Norges f&#248;rste m&#229;l i VM? <span class="points">100p</span></label>
+      <input type="text" id="sq_firstgoal" placeholder="F.eks. Erling Haaland" />
+    </div>
+    <div class="special-item">
+      <label>Hvor mange m&#229;l scorer Norge totalt? <span class="points">100p</span></label>
+      <input type="number" id="sq_totalgoals" placeholder="Antall m&#229;l" min="0" max="99" />
+    </div>
+    <div class="special-item">
+      <label>Hvem blir Norges toppscorer i VM? <span class="points">50p</span></label>
+      <input type="text" id="sq_topscorer" placeholder="F.eks. Erling Haaland" />
+    </div>
+    <datalist id="allTeamsList"></datalist>
+  </div>
+  <div class="save-bar">
+    <span class="save-msg">Husk &#229; lagre tipsene dine!</span>
+    <span class="save-status" id="specialSaveStatus"></span>
+    <button class="btn btn-gold" onclick="saveSpecial()">&#128190; Lagre spesialsp&#248;rsm&#229;l</button>
+  </div>
+</div>
+
+<!-- MATCHES -->
+<div class="section" id="sec-matches">
+  <div class="random-bar">
+    <button class="btn btn-outline btn-sm" onclick="randomAllMatches()">&#127922; Tilfeldig (alle kamper)</button>
+    <button class="btn btn-sm" style="background:#e8edf8;color:var(--blue);border:2px solid var(--blue)" onclick="randomGroupMatches()">&#127922; Tilfeldig (valgt gruppe)</button>
+  </div>
+  <div class="group-filter" id="groupFilter"></div>
+  <div id="matchesContainer"></div>
+  <div class="save-bar">
+    <span class="save-msg">Husk &#229; lagre kamptipsene!</span>
+    <span class="save-status" id="matchSaveStatus"></span>
+    <button class="btn btn-gold" onclick="saveMatches()">&#128190; Lagre kamptips</button>
+  </div>
+</div>
+
+<!-- LEADERBOARD -->
+<div class="section" id="sec-leaderboard">
+  <div class="card">
+    <h3>&#127942; Ledertavle</h3>
+    <div id="leaderboardList"><p style="color:#888">Laster...</p></div>
+    <div style="margin-top:16px;text-align:right">
+      <button class="btn btn-sm btn-outline" onclick="loadLeaderboard()">&#128260; Oppdater</button>
+      <button class="btn btn-sm btn-red" style="margin-left:8px" onclick="showAdminLogin()">&#128272; Admin</button>
+    </div>
+  </div>
+  <div id="adminArea" style="display:none">
+    <div class="admin-section">
+      <h3>&#128272; Admin &#8211; Sett fasitsvar</h3>
+      <div style="margin-bottom:16px">
+        <strong style="color:var(--blue)">Spesialsp&#248;rsm&#229;l fasit:</strong>
+        <div class="admin-input-row" style="margin-top:10px"><label>VM-vinner:</label><input type="text" id="adm_winner" placeholder="Lag" /></div>
+        <div class="admin-input-row"><label>Finalist (taper finalen):</label><input type="text" id="adm_finalist" placeholder="Lag" /></div>
+        <div class="admin-input-row"><label>Norges f&#248;rste m&#229;lscorer:</label><input type="text" id="adm_firstgoal" placeholder="Spiller" /></div>
+        <div class="admin-input-row"><label>Norges totale m&#229;l:</label><input type="number" id="adm_totalgoals" placeholder="Antall" /></div>
+        <div class="admin-input-row"><label>Norges toppscorer:</label><input type="text" id="adm_topscorer" placeholder="Spiller" /></div>
+      </div>
+      <div style="margin-bottom:16px">
+        <strong style="color:var(--blue)">Kampresultat fasit:</strong>
+        <div class="admin-input-row" style="margin-top:10px">
+          <label>Kamp-ID:</label>
+          <input type="text" id="adm_matchId" placeholder="f.eks. g_I_0_1" style="max-width:150px"/>
+          <label style="min-width:30px">H:</label><input type="number" id="adm_home" placeholder="0" style="max-width:60px"/>
+          <label style="min-width:30px">B:</label><input type="number" id="adm_away" placeholder="0" style="max-width:60px"/>
+          <button class="btn btn-sm btn-primary" onclick="setMatchResult()">Sett</button>
+        </div>
+        <div id="adm_matchLog" style="font-size:0.82rem;color:#555;margin-top:6px"></div>
+      </div>
+      <button class="btn btn-red" onclick="saveAdminAnswers()">&#128190; Lagre fasit</button>
+      <span id="adminSaveStatus" style="margin-left:12px;color:var(--blue);font-weight:700"></span>
+    </div>
+  </div>
+</div>
+
+<!-- RULES -->
+<div class="section" id="sec-rules">
+  <div class="card">
+    <h3>&#128203; Regler og poenggiving</h3>
+    <p style="margin-bottom:14px">Tippekonkurransen g&#229;r over hele gruppespillet og utslagsrundene i VM 2026. Alle i Happyfam kan delta!</p>
+    <table class="rules-table">
+      <thead><tr><th>Kategori</th><th>Poeng</th></tr></thead>
+      <tbody>
+        <tr><td>VM-vinner riktig</td><td><strong>200p</strong></td></tr>
+        <tr><td>Finalist (taper finalen) riktig</td><td><strong>100p</strong></td></tr>
+        <tr><td>Norges f&#248;rste m&#229;lscorer riktig</td><td><strong>100p</strong></td></tr>
+        <tr><td>Norges totale m&#229;l eksakt</td><td><strong>100p</strong></td></tr>
+        <tr><td>Norges toppscorer riktig</td><td><strong>50p</strong></td></tr>
+        <tr><td>Riktig utfall p&#229; kamp (seier/uavgjort/tap)</td><td><strong>2p</strong></td></tr>
+        <tr><td>Eksakt resultat p&#229; kamp</td><td><strong>5p</strong></td></tr>
+      </tbody>
+    </table>
+    <div style="margin-top:16px;background:#f4f6fb;border-radius:10px;padding:14px;border-left:4px solid var(--blue)">
+      <strong>Frister:</strong><br>
+      &#128274; Spesialsp&#248;rsm&#229;l stenges: <strong>16. juni 2026, 23:59 norsk tid</strong><br>
+      &#128274; Kamper l&#229;ses ved avspark
+    </div>
+    <div style="margin-top:14px;background:#e8f4e8;border-radius:10px;padding:14px;border-left:4px solid #2a7d2a">
+      <strong>&#127475;&#127476; Norges tropp &#8211; spillere &#229; f&#248;lge med p&#229;:</strong><br>
+      Erling Haaland (#9) &middot; Martin &#216;degaard (#10) &middot; Antonio Nusa &middot; Trener: St&#229;le Solbakken<br>
+      <em>Norges f&#248;rste VM-deltakelse siden Frankrike 1998!</em>
+    </div>
+    <div style="margin-top:14px;background:#fff8e8;border-radius:10px;padding:14px;border-left:4px solid #ffd700">
+      <strong>Gruppe I &#8211; Norges gruppe:</strong><br>
+      Norge &middot; Danmark &middot; Skottland &middot; Saudi-Arabia
+    </div>
+  </div>
+</div>
+
 <script>
+// ===== FIREBASE CONFIG =====
 const FIREBASE_CONFIG = {
   apiKey: "AIzaSyD2jpLUGXdbcO3-N8B0fNijDNOn6GYkRzY",
   authDomain: "fotballvm-tipping.firebaseapp.com",
@@ -97,506 +442,561 @@ const FIREBASE_CONFIG = {
   messagingSenderId: "557285432451",
   appId: "1:557285432451:web:0f6146dc36b9e90bac0fb6"
 };
-</script>
-<!-- ===================================================== -->
 
-<div id="app">
-  <div class="hero">
-    <div style="font-size:32px;margin-bottom:10px">⚽</div>
-    <h1>VM 2026 — Vennekonkurransen</h1>
-    <p>USA · Canada · Mexico &nbsp;|&nbsp; 11. juni – 19. juli 2026</p>
-    <div class="deadline-badge">Fristen for å tippe er ved kampstart!</div>
-  </div>
-  <div id="config-warning-section"></div>
-  <div id="user-section"></div>
-  <div class="tabs" id="main-tabs" style="display:none">
-    <div class="tab active" onclick="showTab('predictions')">⭐ Mine tips</div>
-    <div class="tab" onclick="showTab('matches')">📅 Kampene</div>
-    <div class="tab" onclick="showTab('leaderboard')">🏆 Ledertavle</div>
-    <div class="tab" onclick="showTab('rules')">📋 Regler</div>
-  </div>
-  <div id="tab-content"></div>
-</div>
-
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-<script>
+// ===== GROUPS =====
 const GROUPS = {
   'A': ['USA','Panama','Honduras','Jamaica'],
   'B': ['Mexico','Ecuador','Uruguay','Canada'],
   'C': ['Argentina','Chile','Peru','Bolivia'],
   'D': ['Brasil','Colombia','Venezuela','Paraguay'],
   'E': ['England','Nederland','Polen','Senegal'],
-  'F': ['Frankrike','Marokko','Algerie','Sør-Korea'],
+  'F': ['Frankrike','Marokko','Algerie','Sor-Korea'],
   'G': ['Spania','Kroatia','Albania','Kamerun'],
   'H': ['Tyskland','Portugal','Tyrkia','Japan'],
   'I': ['Norge','Danmark','Skottland','Saudi-Arabia'],
   'J': ['Belgia','Polen','Ungarn','Nigeria'],
-  'K': ['Italia','Sveits','Østerrike','Kamerun'],
+  'K': ['Italia','Sveits','Osterrike','Kamerun'],
   'L': ['Sverige','Tsjekkia','Egypt','Australia']
 };
+// Display names (with special chars)
+const GROUP_TEAM_DISPLAY = {
+  'Sor-Korea': 'Sør-Korea',
+  'Osterrike': 'Østerrike'
+};
+function teamDisplay(t) { return GROUP_TEAM_DISPLAY[t] || t; }
 
-const SPECIAL_QS = [
-  {id:'winner',     label:'Hvilket lag vinner VM?',                  pts:200, placeholder:'F.eks. Brasil',          type:'text'},
-  {id:'finalist',   label:'Hvem taper i finalen?',                   pts:100, placeholder:'F.eks. Frankrike',       type:'text'},
-  {id:'norway_first', label:'Hvem scorer Norges første mål i VM?',  pts:100, placeholder:'F.eks. Erling Haaland', type:'text'},
-  {id:'norway_goals', label:'Hvor mange mål scorer Norge totalt?',  pts:100, placeholder:'F.eks. 8',               type:'number'},
-  {id:'norway_top',   label:'Hvem blir Norges toppscorer i VM?',    pts:50,  placeholder:'F.eks. Erling Haaland', type:'text'}
-];
-
-let db = null;
-let currentUser = null;
-let allMatches = [];
-let currentTab = 'predictions';
-let firestoreOk = false;
-
-function isFirebaseConfigured() {
-  return FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.apiKey !== 'DIN_API_KEY';
+// ===== DEADLINES =====
+const SPECIAL_DEADLINE = new Date('2026-06-16T21:59:00Z');
+const MATCH_KICKOFFS = {
+  'g_I_0_1': new Date('2026-06-17T00:00:00Z'),
+  'g_I_0_2': new Date('2026-06-21T00:00:00Z'),
+  'g_I_0_3': new Date('2026-06-25T00:00:00Z'),
+  'g_I_1_2': new Date('2026-06-17T20:00:00Z'),
+  'g_I_1_3': new Date('2026-06-21T20:00:00Z'),
+  'g_I_2_3': new Date('2026-06-25T20:00:00Z'),
+};
+const DEFAULT_FUTURE = new Date('2026-07-20T00:00:00Z');
+function getMatchKickoff(mid) {
+  return MATCH_KICKOFFS[mid] || DEFAULT_FUTURE;
 }
 
-function initFirebase() {
-  if (!isFirebaseConfigured()) {
-    document.getElementById('config-warning-section').innerHTML = `
-      <div class="config-warning">
-        <strong>⚠️ Firebase ikke konfigurert enda</strong>
-        Siden kjører i <strong>demo-modus</strong> (tips lagres kun lokalt på din enhet).<br>
-        For å samle tips fra alle vennene dine må du:<br>
-        1. Opprett et gratis Firebase-prosjekt på <a href="https://firebase.google.com" target="_blank">firebase.google.com</a><br>
-        2. Kopier din <code>firebaseConfig</code> inn øverst i HTML-filen (der det står DIN_API_KEY osv.)<br>
-        3. Last opp filen på nytt til GitHub
-      </div>`;
+// ===== KNOCKOUT ROUNDS =====
+const KO_ROUNDS = [
+  { id: 'r32', label: 'Runde av 32', count: 16 },
+  { id: 'r16', label: 'Runde av 16', count: 8 },
+  { id: 'qf',  label: 'Kvartfinaler', count: 4 },
+  { id: 'sf',  label: 'Semifinaler', count: 2 },
+  { id: 'end', label: 'Sluttspill finale', count: 2 }, // bronze + final
+];
+
+// ===== STATE =====
+let db = null;
+let currentUser = null;
+let predictions = { special: {}, matches: {} };
+let adminAnswers = { special: {}, matches: {} };
+let activeGroup = 'I';
+let demoMode = false;
+
+// ===== INIT FIREBASE =====
+try {
+  firebase.initializeApp(FIREBASE_CONFIG);
+  db = firebase.firestore();
+  console.log('Firebase OK');
+} catch(e) {
+  console.warn('Firebase init failed, demo mode', e);
+  demoMode = true;
+}
+
+// ===== SESSION =====
+function saveSession(n) { sessionStorage.setItem('vm2026_user', n); }
+function getSession()   { return sessionStorage.getItem('vm2026_user'); }
+function clearSession() { sessionStorage.removeItem('vm2026_user'); }
+
+// ===== AUTH =====
+async function doLogin() {
+  const name = document.getElementById('authName').value.trim();
+  const pin  = document.getElementById('authPin').value.trim();
+  const errEl = document.getElementById('authError');
+  errEl.textContent = '';
+  if (!name) { errEl.textContent = 'Skriv inn navn.'; return; }
+  if (!/^\d{4}$/.test(pin)) { errEl.textContent = 'PIN-kode må være 4 siffer.'; return; }
+
+  if (demoMode) {
+    const stored = JSON.parse(localStorage.getItem('vm2026_users') || '{}');
+    if (stored[name]) {
+      if (stored[name].pin !== pin) { errEl.textContent = 'Feil PIN-kode'; return; }
+    } else {
+      stored[name] = { pin };
+      localStorage.setItem('vm2026_users', JSON.stringify(stored));
+    }
+    await finishLogin(name);
     return;
   }
   try {
-    firebase.initializeApp(FIREBASE_CONFIG);
-    db = firebase.firestore();
-    firestoreOk = true;
-  } catch(e) {
-    console.error('Firebase init feil:', e);
-  }
-}
-
-function genMatches() {
-  allMatches = [];
-  Object.entries(GROUPS).forEach(([g, teams]) => {
-    for(let i=0;i<teams.length;i++) for(let j=i+1;j<teams.length;j++) {
-      allMatches.push({id:`g_${g}_${i}_${j}`, stage:'group', group:g, home:teams[i], away:teams[j]});
+    const userDoc = await db.collection('users').doc(name).get();
+    if (userDoc.exists) {
+      if (userDoc.data().pin !== pin) { errEl.textContent = 'Feil PIN-kode'; return; }
+    } else {
+      await db.collection('users').doc(name).set({ pin, name, created: new Date().toISOString() });
     }
-  });
-  const ko = [
-    {id:'r32_1', stage:'r32', label:'Åttedelsfinale 1', home:'1A', away:'2B'},
-    {id:'r32_2', stage:'r32', label:'Åttedelsfinale 2', home:'1C', away:'2D'},
-    {id:'r32_3', stage:'r32', label:'Åttedelsfinale 3', home:'1E', away:'2F'},
-    {id:'r32_4', stage:'r32', label:'Åttedelsfinale 4', home:'1G', away:'2H'},
-    {id:'r32_5', stage:'r32', label:'Åttedelsfinale 5', home:'1I', away:'2J'},
-    {id:'r32_6', stage:'r32', label:'Åttedelsfinale 6', home:'1K', away:'2L'},
-    {id:'r32_7', stage:'r32', label:'Åttedelsfinale 7', home:'2A', away:'1B'},
-    {id:'r32_8', stage:'r32', label:'Åttedelsfinale 8', home:'2C', away:'1D'},
-    {id:'r32_9', stage:'r32', label:'Åttedelsfinale 9', home:'2E', away:'1F'},
-    {id:'r32_10',stage:'r32', label:'Åttedelsfinale 10',home:'2G', away:'1H'},
-    {id:'r32_11',stage:'r32', label:'Åttedelsfinale 11',home:'2I', away:'1J'},
-    {id:'r32_12',stage:'r32', label:'Åttedelsfinale 12',home:'2K', away:'1L'},
-    {id:'r32_13',stage:'r32', label:'Åttedelsfinale 13',home:'3A/B/C', away:'3D/E/F'},
-    {id:'r32_14',stage:'r32', label:'Åttedelsfinale 14',home:'3G/H/I', away:'3J/K/L'},
-    {id:'r32_15',stage:'r32', label:'Åttedelsfinale 15',home:'3-gruppe 1', away:'3-gruppe 2'},
-    {id:'r32_16',stage:'r32', label:'Åttedelsfinale 16',home:'3-gruppe 3', away:'3-gruppe 4'},
-    {id:'r16_1', stage:'r16', label:'Sekstendelsfinale 1', home:'Vinner R32-1', away:'Vinner R32-2'},
-    {id:'r16_2', stage:'r16', label:'Sekstendelsfinale 2', home:'Vinner R32-3', away:'Vinner R32-4'},
-    {id:'r16_3', stage:'r16', label:'Sekstendelsfinale 3', home:'Vinner R32-5', away:'Vinner R32-6'},
-    {id:'r16_4', stage:'r16', label:'Sekstendelsfinale 4', home:'Vinner R32-7', away:'Vinner R32-8'},
-    {id:'r16_5', stage:'r16', label:'Sekstendelsfinale 5', home:'Vinner R32-9', away:'Vinner R32-10'},
-    {id:'r16_6', stage:'r16', label:'Sekstendelsfinale 6', home:'Vinner R32-11', away:'Vinner R32-12'},
-    {id:'r16_7', stage:'r16', label:'Sekstendelsfinale 7', home:'Vinner R32-13', away:'Vinner R32-14'},
-    {id:'r16_8', stage:'r16', label:'Sekstendelsfinale 8', home:'Vinner R32-15', away:'Vinner R32-16'},
-    {id:'qf_1',  stage:'qf',  label:'Kvartfinale 1', home:'Vinner R16-1', away:'Vinner R16-2'},
-    {id:'qf_2',  stage:'qf',  label:'Kvartfinale 2', home:'Vinner R16-3', away:'Vinner R16-4'},
-    {id:'qf_3',  stage:'qf',  label:'Kvartfinale 3', home:'Vinner R16-5', away:'Vinner R16-6'},
-    {id:'qf_4',  stage:'qf',  label:'Kvartfinale 4', home:'Vinner R16-7', away:'Vinner R16-8'},
-    {id:'sf_1',  stage:'sf',  label:'Semifinale 1', home:'Vinner KF-1', away:'Vinner KF-2'},
-    {id:'sf_2',  stage:'sf',  label:'Semifinale 2', home:'Vinner KF-3', away:'Vinner KF-4'},
-    {id:'third', stage:'final',label:'Bronsekamp',   home:'Taper SF-1', away:'Taper SF-2'},
-    {id:'final', stage:'final',label:'🏆 FINALE',    home:'Vinner SF-1', away:'Vinner SF-2'}
-  ];
-  ko.forEach(m => allMatches.push(m));
-}
-
-async function loadUserPredictions() {
-  if (!currentUser) return {};
-  if (firestoreOk) {
-    try {
-      const doc = await db.collection('predictions').doc(currentUser).get();
-      return doc.exists ? doc.data() : {};
-    } catch(e) { console.error(e); }
-  }
-  try { return JSON.parse(localStorage.getItem('vm26_'+currentUser)||'{}'); } catch(e) { return {}; }
-}
-
-async function saveUserPredictions(data) {
-  if (!currentUser) return false;
-  if (firestoreOk) {
-    try {
-      await db.collection('predictions').doc(currentUser).set(data, {merge:true});
-      return true;
-    } catch(e) { console.error(e); }
-  }
-  localStorage.setItem('vm26_'+currentUser, JSON.stringify(data));
-  return true;
-}
-
-async function loadAllPredictions() {
-  if (firestoreOk) {
-    try {
-      const snap = await db.collection('predictions').get();
-      const res = {};
-      snap.forEach(doc => { res[doc.id] = doc.data(); });
-      return res;
-    } catch(e) { console.error(e); }
-  }
-  const users = JSON.parse(localStorage.getItem('vm26_users')||'[]');
-  const res = {};
-  users.forEach(u => {
-    try { res[u] = JSON.parse(localStorage.getItem('vm26_'+u)||'{}'); } catch(e) {}
-  });
-  return res;
-}
-
-async function loadAnswers() {
-  if (firestoreOk) {
-    try {
-      const doc = await db.collection('admin').doc('answers').get();
-      return doc.exists ? doc.data() : {};
-    } catch(e) { console.error(e); }
-  }
-  try { return JSON.parse(localStorage.getItem('vm26_answers')||'{}'); } catch(e) { return {}; }
-}
-
-async function saveAnswers(data) {
-  if (firestoreOk) {
-    try { await db.collection('admin').doc('answers').set(data); return; } catch(e) { console.error(e); }
-  }
-  localStorage.setItem('vm26_answers', JSON.stringify(data));
-}
-
-function renderUserSection() {
-  const sec = document.getElementById('user-section');
-  const tabs = document.getElementById('main-tabs');
-  const content = document.getElementById('tab-content');
-  if (!currentUser) {
-    tabs.style.display = 'none';
-    const users = JSON.parse(localStorage.getItem('vm26_users')||'[]');
-    sec.innerHTML = `
-      <div class="new-user-form">
-        <h3>👋 Hvem er du?</h3>
-        <p style="font-size:13px;color:#888;margin-top:4px">Skriv inn navnet ditt for å starte tippingen</p>
-        <div class="field">
-          <input id="new-name" placeholder="Ditt navn..." autocomplete="name" />
-          <button class="btn primary" onclick="addUser()">Start tipping →</button>
-        </div>
-        ${users.length ? `<div style="margin-top:14px;font-size:13px;color:#888">Tidligere deltakere: ${users.map(u=>`<a href="#" onclick="selectUser('${u}');return false" style="margin-right:10px;color:#1855a3;font-weight:500">${u}</a>`).join('')}</div>` : ''}
-      </div>`;
-    content.innerHTML = '';
-  } else {
-    tabs.style.display = 'flex';
-    sec.innerHTML = `
-      <div class="user-bar">
-        <div class="avatar">${currentUser.substring(0,2).toUpperCase()}</div>
-        <div style="flex:1"><strong>${currentUser}</strong><br><span style="font-size:12px;color:#888">Pålogget · ${firestoreOk ? '🟢 Synkronisert med alle' : '🟡 Demo-modus (lokalt)'}</span></div>
-        <button class="btn" onclick="logout()" style="font-size:12px">Bytt bruker</button>
-      </div>`;
-    showTab(currentTab);
+    await finishLogin(name);
+  } catch(e) {
+    errEl.textContent = 'Feil ved tilkobling: ' + e.message;
   }
 }
 
-function addUser() {
-  const name = document.getElementById('new-name').value.trim();
-  if (!name) { document.getElementById('new-name').focus(); return; }
-  const users = JSON.parse(localStorage.getItem('vm26_users')||'[]');
-  if (!users.includes(name)) { users.push(name); localStorage.setItem('vm26_users', JSON.stringify(users)); }
-  selectUser(name);
-}
-
-function selectUser(name) {
+async function finishLogin(name) {
   currentUser = name;
-  renderUserSection();
+  saveSession(name);
+  document.getElementById('authOverlay').style.display = 'none';
+  document.getElementById('topbar').style.display = '';
+  document.getElementById('mainTabs').style.display = '';
+  document.getElementById('topbarName').textContent = name;
+  await loadUserPredictions();
+  await loadAdminAnswers();
+  renderSpecial();
+  renderMatches();
+  loadLeaderboard();
 }
 
-function logout() {
+function doLogout() {
   currentUser = null;
-  currentTab = 'predictions';
-  renderUserSection();
+  clearSession();
+  predictions = { special: {}, matches: {} };
+  document.getElementById('authOverlay').style.display = '';
+  document.getElementById('topbar').style.display = 'none';
+  document.getElementById('mainTabs').style.display = 'none';
+  document.getElementById('authName').value = '';
+  document.getElementById('authPin').value = '';
+  document.getElementById('authError').textContent = '';
 }
 
-function showTab(id) {
-  currentTab = id;
-  document.querySelectorAll('.tab').forEach((t,i) => {
-    t.classList.toggle('active', ['predictions','matches','leaderboard','rules'][i]===id);
-  });
-  const c = document.getElementById('tab-content');
-  if (id==='predictions') renderPredictionsTab(c);
-  else if (id==='matches') renderMatchesTab(c);
-  else if (id==='leaderboard') renderLeaderboardTab(c);
-  else if (id==='rules') renderRulesTab(c);
-}
-
-async function renderPredictionsTab(c) {
-  c.innerHTML = `<div class="card"><div style="text-align:center;padding:1rem"><span class="spinner"></span> Laster tips...</div></div>`;
-  const saved = await loadUserPredictions();
-  const special = saved.special || {};
-  let html = `<div class="card"><h2>Spesielle spørsmål</h2><p style="font-size:13px;color:#888;margin-bottom:1rem">Her er de store poengsummene — tenk deg godt om!</p>`;
-  SPECIAL_QS.forEach(q => {
-    html += `<div class="q-item">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <span style="font-size:14px;font-weight:500">${q.label}</span>
-        <span class="q-pts">${q.pts} poeng</span>
-      </div>
-      <div class="q-input"><input id="sq_${q.id}" type="${q.type}" placeholder="${q.placeholder}" value="${special[q.id]||''}" /></div>
-    </div>`;
-  });
-  html += `</div>`;
-  html += `<div class="btn-row">
-    <button class="btn primary" onclick="saveAll()">💾 Lagre alle tips</button>
-    <button class="btn danger" onclick="confirmClear()">🗑 Nullstill</button>
-  </div>`;
-  c.innerHTML = html;
-}
-
-async function renderMatchesTab(c) {
-  c.innerHTML = `<div class="card"><div style="text-align:center;padding:1rem"><span class="spinner"></span> Laster kamper...</div></div>`;
-  const saved = await loadUserPredictions();
-  const matches = saved.matches || {};
-
-  let html = `<div class="btn-row">
-    <button class="btn primary" onclick="randomizeAll()">🎲 Tilfeldig — alle kamper</button>
-    <button class="btn" onclick="randomizeGroup()">🔄 Tilfeldig — gruppe:</button>
-    <select id="group-select">${Object.keys(GROUPS).map(g=>`<option value="${g}">Gruppe ${g}</option>`).join('')}</select>
-    <button class="btn success" onclick="saveAll()" style="margin-left:auto">💾 Lagre</button>
-  </div>
-  <div style="font-size:12px;color:#888;margin-bottom:1rem">Poenggiving: korrekt utfall = <strong>2 poeng</strong>, eksakt resultat = <strong>5 poeng</strong></div>`;
-
-  html += `<div style="font-size:13px;font-weight:500;background:#f5f5f0;padding:8px 12px;border-radius:8px;margin-bottom:.75rem">Grupperunde</div>`;
-  html += `<div class="group-grid">`;
-  Object.entries(GROUPS).forEach(([g, teams]) => {
-    html += `<div class="group-card"><div class="group-title">Gruppe ${g}</div>`;
-    allMatches.filter(m=>m.stage==='group'&&m.group===g).forEach(m => {
-      const v = matches[m.id] || ['',''];
-      html += `<div class="match-row">
-        <div class="team ${m.home==='Norge'?'norway':''}">${m.home}${m.home==='Norge'?'<span class="badge-norway">NOR</span>':''}</div>
-        <div class="score-box">
-          <input id="h_${m.id}" type="number" min="0" max="20" placeholder="-" value="${v[0]}" />
-          <span class="sep">–</span>
-          <input id="a_${m.id}" type="number" min="0" max="20" placeholder="-" value="${v[1]}" />
-        </div>
-        <div class="team ${m.away==='Norge'?'norway':''}">${m.away}${m.away==='Norge'?'<span class="badge-norway">NOR</span>':''}</div>
-      </div>`;
-    });
-    html += `</div>`;
-  });
-  html += `</div>`;
-
-  const stages = [
-    {key:'r32',label:'Åttedelsfinaler (R32)'},
-    {key:'r16',label:'Sekstendelsfinaler (R16)'},
-    {key:'qf', label:'Kvartfinaler'},
-    {key:'sf', label:'Semifinaler'},
-    {key:'final',label:'Bronsekamp & Finale'}
-  ];
-  stages.forEach(s => {
-    const ms = allMatches.filter(m=>m.stage===s.key);
-    if (!ms.length) return;
-    html += `<div class="stage-header">${s.label}</div><div class="ko-grid">`;
-    ms.forEach(m => {
-      const v = matches[m.id] || ['',''];
-      html += `<div class="ko-match">
-        <div class="ko-label">${m.label||''}</div>
-        <div class="ko-teams">
-          <div style="flex:1;font-size:12px">${m.home}</div>
-          <div class="score-box">
-            <input id="h_${m.id}" type="number" min="0" max="20" placeholder="-" value="${v[0]}" style="width:38px" />
-            <span class="sep">–</span>
-            <input id="a_${m.id}" type="number" min="0" max="20" placeholder="-" value="${v[1]}" style="width:38px" />
-          </div>
-          <div style="flex:1;text-align:right;font-size:12px">${m.away}</div>
-        </div>
-      </div>`;
-    });
-    html += `</div>`;
-  });
-  c.innerHTML = html;
-}
-
-async function renderLeaderboardTab(c) {
-  c.innerHTML = `<div class="card"><div style="text-align:center;padding:1rem"><span class="spinner"></span> Beregner poeng...</div></div>`;
-  const [allPreds, answers] = await Promise.all([loadAllPredictions(), loadAnswers()]);
-  const users = Object.keys(allPreds);
-  if (!users.length) {
-    c.innerHTML = `<div class="notice">Ingen deltakere enda. Vær den første til å tippe!</div>`;
+// ===== LOAD / SAVE =====
+async function loadUserPredictions() {
+  if (!currentUser) return;
+  if (demoMode) {
+    predictions = JSON.parse(localStorage.getItem('vm2026_pred_' + currentUser) || '{"special":{},"matches":{}}');
     return;
   }
-  const scored = users.map(u => {
-    const d = allPreds[u];
-    let pts = 0; let breakdown = [];
-    const sp = d.special||{}, an = answers.special||{};
-    if (an.winner && sp.winner && an.winner.trim().toLowerCase()===sp.winner.trim().toLowerCase()) { pts+=200; breakdown.push('VM-vinner ✓ +200p'); }
-    if (an.finalist && sp.finalist && an.finalist.trim().toLowerCase()===sp.finalist.trim().toLowerCase()) { pts+=100; breakdown.push('Finalist ✓ +100p'); }
-    if (an.norway_first && sp.norway_first && an.norway_first.trim().toLowerCase()===sp.norway_first.trim().toLowerCase()) { pts+=100; breakdown.push('Norges 1. scorer ✓ +100p'); }
-    if (an.norway_goals && sp.norway_goals && String(an.norway_goals).trim()===String(sp.norway_goals).trim()) { pts+=100; breakdown.push('Norges mål ✓ +100p'); }
-    if (an.norway_top && sp.norway_top && an.norway_top.trim().toLowerCase()===sp.norway_top.trim().toLowerCase()) { pts+=50; breakdown.push('Toppscorer ✓ +50p'); }
-    let correct=0, exact=0;
-    if (answers.matches && d.matches) {
-      Object.entries(answers.matches).forEach(([id,ah]) => {
-        const ut = d.matches[id];
-        if (!ut) return;
-        if (ut[0]===ah[0]&&ut[1]===ah[1]) { pts+=5; exact++; }
-        else if ((ut[0]>ut[1]&&ah[0]>ah[1])||(ut[0]<ut[1]&&ah[0]<ah[1])||(ut[0]===ut[1]&&ah[0]===ah[1])) { pts+=2; correct++; }
-      });
-    }
-    if (exact||correct) breakdown.push(`Kamper: ${exact}×5p + ${correct}×2p`);
-    const tipCount = d.matches ? Object.keys(d.matches).length : 0;
-    return {name:u, pts, breakdown, tipCount};
-  }).sort((a,b)=>b.pts-a.pts);
+  try {
+    const doc = await db.collection('predictions').doc(currentUser).get();
+    predictions = doc.exists ? doc.data() : { special: {}, matches: {} };
+  } catch(e) {
+    predictions = { special: {}, matches: {} };
+  }
+}
 
-  const maxPts = Math.max(...scored.map(s=>s.pts), 1);
-  const medals = ['🥇','🥈','🥉'];
-  let html = `<div style="margin-bottom:1rem;display:flex;justify-content:space-between;align-items:center">
-    <h2 style="margin:0">Ledertavle</h2>
-    <button class="btn" onclick="showTab('leaderboard')">🔄 Oppdater</button>
-  </div>
-  <div class="card">`;
-  scored.forEach((s,i) => {
-    html += `<div class="lb-row">
-      <div class="lb-rank">${medals[i]||`${i+1}.`}</div>
-      <div class="avatar">${s.name.substring(0,2).toUpperCase()}</div>
-      <div style="flex:1">
-        <div class="lb-name">${s.name}</div>
-        <div class="lb-detail">${s.tipCount} kamper tipset${s.breakdown.length?' · '+s.breakdown.slice(0,3).join(', '):''}</div>
-        <div class="pts-bar"><div class="pts-bar-fill" style="width:${Math.round(s.pts/maxPts*100)}%"></div></div>
-      </div>
-      <div class="lb-pts" style="padding-left:12px">${s.pts}p</div>
-    </div>`;
+async function saveSpecial() {
+  if (!currentUser) return;
+  predictions.special = {
+    winner:     document.getElementById('sq_winner').value.trim(),
+    finalist:   document.getElementById('sq_finalist').value.trim(),
+    firstgoal:  document.getElementById('sq_firstgoal').value.trim(),
+    totalgoals: document.getElementById('sq_totalgoals').value.trim(),
+    topscorer:  document.getElementById('sq_topscorer').value.trim(),
+  };
+  await persistPredictions();
+  flashStatus('specialSaveStatus', '✓ Lagret!');
+}
+
+async function saveMatches() {
+  if (!currentUser) return;
+  document.querySelectorAll('.score-inp').forEach(inp => {
+    const mid  = inp.dataset.match;
+    const side = inp.dataset.side;
+    if (!predictions.matches[mid]) predictions.matches[mid] = {};
+    predictions.matches[mid][side] = inp.value;
   });
-  html += `</div>`;
-  html += `<div class="btn-row" style="justify-content:flex-end">
-    <button class="btn danger" onclick="adminPanel()">🔐 Admin: sett fasit</button>
-  </div>`;
-  c.innerHTML = html;
+  await persistPredictions();
+  flashStatus('matchSaveStatus', '✓ Lagret!');
 }
 
-function renderRulesTab(c) {
-  c.innerHTML = `
-  <div class="card">
-    <h2>Poengsystem</h2>
-    <table class="rules-table" style="margin-top:.75rem">
-      <tr><td>🏆 Riktig VM-vinner</td><td>200 poeng</td></tr>
-      <tr><td>🥈 Riktig finalist (taper)</td><td>100 poeng</td></tr>
-      <tr><td>⚽ Norges første målscorer</td><td>100 poeng</td></tr>
-      <tr><td>🔢 Norges totale antall mål (eksakt)</td><td>100 poeng</td></tr>
-      <tr><td>👟 Norges toppscorer</td><td>50 poeng</td></tr>
-      <tr><td>✅ Korrekt kampresultat (seier/uavgjort/tap)</td><td>2 poeng</td></tr>
-      <tr><td>🎯 Korrekt eksakt kampresultat</td><td>5 poeng</td></tr>
-    </table>
-  </div>
-  <div class="card">
-    <h2>Slik fungerer det</h2>
-    <ol style="font-size:14px;line-height:2.2;padding-left:1.25rem;color:#555">
-      <li>Skriv inn navnet ditt og logg inn</li>
-      <li>Fyll inn svar på de fem spesielle spørsmålene</li>
-      <li>Tips resultater for alle kampene du vil (eller trykk 🎲 for tilfeldig)</li>
-      <li>Husk å trykke <strong>Lagre</strong> — tips er synkronisert til alle</li>
-      <li>Etter kamper er spilt setter admin inn fasit under ledertavlen</li>
-      <li>Poeng beregnes automatisk og ledertavlen oppdateres</li>
-    </ol>
-  </div>`;
+async function persistPredictions() {
+  if (demoMode) {
+    localStorage.setItem('vm2026_pred_' + currentUser, JSON.stringify(predictions));
+    return;
+  }
+  try {
+    await db.collection('predictions').doc(currentUser).set(predictions);
+  } catch(e) { console.error('Save error', e); }
 }
 
-function collectCurrentData() {
-  const special = {};
-  SPECIAL_QS.forEach(q => {
-    const el = document.getElementById('sq_'+q.id);
-    if (el) special[q.id] = el.value;
-  });
-  const matches = {};
-  allMatches.forEach(m => {
-    const h = document.getElementById('h_'+m.id);
-    const a = document.getElementById('a_'+m.id);
-    if (h && a && h.value!=='' && a.value!=='') matches[m.id] = [parseInt(h.value)||0, parseInt(a.value)||0];
-  });
-  return {special, matches};
+function flashStatus(id, msg) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = msg;
+  setTimeout(() => { el.textContent = ''; }, 3000);
 }
 
-async function saveAll() {
-  if (!currentUser) { alert('Logg inn først!'); return; }
-  const data = collectCurrentData();
-  const ok = await saveUserPredictions(data);
-  const count = Object.keys(data.matches).length;
-  showToast(`✓ Lagret! ${count} kamper + spesielle spørsmål ${firestoreOk?'(synkronisert)':'(lokalt)'}`);
+// ===== ADMIN =====
+async function loadAdminAnswers() {
+  if (demoMode) {
+    adminAnswers = JSON.parse(localStorage.getItem('vm2026_admin') || '{"special":{},"matches":{}}');
+    return;
+  }
+  try {
+    const doc = await db.collection('admin').doc('answers').get();
+    if (doc.exists) adminAnswers = doc.data();
+  } catch(e) {}
 }
 
-function confirmClear() {
-  if (!confirm('Er du sikker? Dette sletter alle dine tips.')) return;
-  saveUserPredictions({special:{}, matches:{}});
-  showTab('predictions');
-  showToast('Tips nullstilt');
+function showAdminLogin() {
+  const pw = prompt('Admin-passord:');
+  if (pw === 'vm2026') {
+    document.getElementById('adminArea').style.display = '';
+    const s = adminAnswers.special || {};
+    ['winner','finalist','firstgoal','totalgoals','topscorer'].forEach(k => {
+      const el = document.getElementById('adm_' + k);
+      if (el) el.value = s[k] || '';
+    });
+  } else if (pw !== null) {
+    alert('Feil passord');
+  }
 }
 
-function randomizeAll() {
-  allMatches.forEach(m => {
-    const h = document.getElementById('h_'+m.id);
-    const a = document.getElementById('a_'+m.id);
-    if (h) h.value = Math.floor(Math.random()*5);
-    if (a) a.value = Math.floor(Math.random()*5);
-  });
+function setMatchResult() {
+  const mid = document.getElementById('adm_matchId').value.trim();
+  const h   = document.getElementById('adm_home').value.trim();
+  const a   = document.getElementById('adm_away').value.trim();
+  if (!mid || h === '' || a === '') { alert('Fyll inn kamp-ID og begge mål'); return; }
+  if (!adminAnswers.matches) adminAnswers.matches = {};
+  adminAnswers.matches[mid] = { home: h, away: a };
+  const log = document.getElementById('adm_matchLog');
+  log.textContent = 'Lagt til: ' + mid + ' = ' + h + '-' + a + '. (Husk å trykke Lagre fasit.)';
 }
 
-function randomizeGroup() {
-  const g = document.getElementById('group-select').value;
-  allMatches.filter(m=>m.group===g).forEach(m => {
-    const h = document.getElementById('h_'+m.id);
-    const a = document.getElementById('a_'+m.id);
-    if (h) h.value = Math.floor(Math.random()*5);
-    if (a) a.value = Math.floor(Math.random()*5);
-  });
+async function saveAdminAnswers() {
+  adminAnswers.special = {
+    winner:     document.getElementById('adm_winner').value.trim(),
+    finalist:   document.getElementById('adm_finalist').value.trim(),
+    firstgoal:  document.getElementById('adm_firstgoal').value.trim(),
+    totalgoals: document.getElementById('adm_totalgoals').value.trim(),
+    topscorer:  document.getElementById('adm_topscorer').value.trim(),
+  };
+  if (demoMode) {
+    localStorage.setItem('vm2026_admin', JSON.stringify(adminAnswers));
+  } else {
+    try {
+      await db.collection('admin').doc('answers').set(adminAnswers);
+    } catch(e) { alert('Feil: ' + e.message); return; }
+  }
+  flashStatus('adminSaveStatus', '✓ Fasit lagret!');
 }
 
-async function adminPanel() {
-  const pw = prompt('Admin-passord (standard: vm2026):');
-  if (pw !== 'vm2026') { alert('Feil passord!'); return; }
-  const answers = await loadAnswers();
-  const sp = answers.special || {};
-  const winner       = prompt('VM-vinner:', sp.winner||'');           if(winner===null) return;
-  const finalist     = prompt('VM-finalist (taper):', sp.finalist||''); if(finalist===null) return;
-  const norway_first = prompt('Norges første målscorer:', sp.norway_first||''); if(norway_first===null) return;
-  const norway_goals = prompt('Norges totale mål:', sp.norway_goals||''); if(norway_goals===null) return;
-  const norway_top   = prompt('Norges toppscorer:', sp.norway_top||''); if(norway_top===null) return;
-  const newAnswers = { special:{winner,finalist,norway_first,norway_goals,norway_top}, matches: answers.matches||{} };
-  const addMatch = confirm('Vil du legge inn et kampresultat?');
-  if (addMatch) {
-    const id = prompt('Kamp-ID (se HTML-koden, f.eks. g_I_0_1 for Norges første gruppesp.kamp):');
-    const score = prompt('Resultat (f.eks. 2-1):');
-    if (id && score) {
-      const parts = score.split('-').map(Number);
-      if (parts.length===2) newAnswers.matches[id] = parts;
+// ===== LEADERBOARD =====
+async function loadLeaderboard() {
+  const listEl = document.getElementById('leaderboardList');
+  listEl.innerHTML = '<p style="color:#888">Laster...</p>';
+  await loadAdminAnswers();
+
+  let allPreds = {};
+  if (demoMode) {
+    const users = JSON.parse(localStorage.getItem('vm2026_users') || '{}');
+    Object.keys(users).forEach(u => {
+      allPreds[u] = JSON.parse(localStorage.getItem('vm2026_pred_' + u) || '{"special":{},"matches":{}}');
+    });
+  } else {
+    try {
+      const snap = await db.collection('predictions').get();
+      snap.forEach(doc => { allPreds[doc.id] = doc.data(); });
+    } catch(e) {
+      listEl.innerHTML = '<p style="color:red">Kunne ikke laste ledertavle: ' + e.message + '</p>';
+      return;
     }
   }
-  await saveAnswers(newAnswers);
-  showTab('leaderboard');
-  showToast('✓ Fasit lagret!');
+
+  const scores = Object.entries(allPreds).map(([name, pred]) => ({
+    name, pts: calcScore(pred)
+  }));
+  scores.sort((a, b) => b.pts - a.pts);
+  const maxPts = scores.length ? Math.max(1, scores[0].pts) : 1;
+
+  if (!scores.length) {
+    listEl.innerHTML = '<p style="color:#888">Ingen deltakere ennå.</p>';
+    return;
+  }
+
+  const medals = ['🥇','🥈','🥉'];
+  listEl.innerHTML = scores.map((s, i) => {
+    const isMe = s.name === currentUser;
+    const pct = Math.max(2, Math.round(s.pts / maxPts * 100));
+    return '<div class="lb-row">' +
+      '<div class="lb-rank">' + (medals[i] || (i+1)) + '</div>' +
+      '<div class="lb-name' + (isMe ? ' is-me' : '') + '">' + escHtml(s.name) +
+        (isMe ? ' <span class="badge badge-blue">deg</span>' : '') + '</div>' +
+      '<div class="lb-bar-wrap"><div class="lb-bar" style="width:' + pct + '%"></div></div>' +
+      '<div class="lb-points">' + s.pts + 'p</div>' +
+      '</div>';
+  }).join('');
 }
 
-function showToast(msg) {
-  const t = document.createElement('div');
-  t.className = 'toast';
-  t.textContent = msg;
-  document.body.appendChild(t);
-  setTimeout(()=>t.remove(), 3200);
+function calcScore(pred) {
+  let pts = 0;
+  const s = pred.special || {};
+  const ans = adminAnswers.special || {};
+  if (ans.winner     && s.winner     && norm(ans.winner)     === norm(s.winner))     pts += 200;
+  if (ans.finalist   && s.finalist   && norm(ans.finalist)   === norm(s.finalist))   pts += 100;
+  if (ans.firstgoal  && s.firstgoal  && norm(ans.firstgoal)  === norm(s.firstgoal))  pts += 100;
+  if (ans.totalgoals && s.totalgoals && String(ans.totalgoals).trim() === String(s.totalgoals).trim()) pts += 100;
+  if (ans.topscorer  && s.topscorer  && norm(ans.topscorer)  === norm(s.topscorer))  pts += 50;
+  const ma = adminAnswers.matches || {};
+  Object.entries(pred.matches || {}).forEach(([mid, mp]) => {
+    if (!ma[mid]) return;
+    const ah = parseInt(ma[mid].home), aa = parseInt(ma[mid].away);
+    const ph = parseInt(mp.home),      pa = parseInt(mp.away);
+    if (isNaN(ah)||isNaN(aa)||isNaN(ph)||isNaN(pa)) return;
+    if (ph === ah && pa === aa) { pts += 5; return; }
+    const sign = (x,y) => x>y?1:x<y?-1:0;
+    if (sign(ph,pa) === sign(ah,aa)) pts += 2;
+  });
+  return pts;
 }
 
-document.addEventListener('keydown', e => {
-  if (e.key==='Enter' && document.getElementById('new-name')===document.activeElement) addUser();
+function norm(s) { return (s||'').toLowerCase().trim(); }
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ===== RENDER SPECIAL =====
+function renderSpecial() {
+  const dl = document.getElementById('allTeamsList');
+  dl.innerHTML = Object.values(GROUPS).flat().map(t =>
+    '<option value="' + teamDisplay(t) + '">'
+  ).join('');
+  const s = predictions.special || {};
+  document.getElementById('sq_winner').value     = s.winner     || '';
+  document.getElementById('sq_finalist').value   = s.finalist   || '';
+  document.getElementById('sq_firstgoal').value  = s.firstgoal  || '';
+  document.getElementById('sq_totalgoals').value = s.totalgoals || '';
+  document.getElementById('sq_topscorer').value  = s.topscorer  || '';
+  updateSpecialDeadlineUI();
+}
+
+function updateSpecialDeadlineUI() {
+  const now    = new Date();
+  const locked = now >= SPECIAL_DEADLINE;
+  const ids = ['sq_winner','sq_finalist','sq_firstgoal','sq_totalgoals','sq_topscorer'];
+  ids.forEach(id => { document.getElementById(id).disabled = locked; });
+  const msg = document.getElementById('specialDeadlineMsg');
+  if (locked) {
+    msg.innerHTML = '<span class="locked-msg">🔒 Spesialspørsmål er stengt (fristen er utløpt)</span>';
+  } else {
+    msg.innerHTML = '<span style="color:#2a7d2a;font-weight:600">✅ Åpen – frist: 16. juni 2026, 23:59 norsk tid</span>';
+  }
+}
+
+// ===== RENDER MATCHES =====
+function renderMatches() {
+  renderGroupFilter();
+  renderMatchesContainer();
+}
+
+function renderGroupFilter() {
+  const filter = document.getElementById('groupFilter');
+  filter.innerHTML = '<label>Gruppe:</label>';
+  const btns = ['Alle', ...Object.keys(GROUPS), 'Sluttspill'];
+  btns.forEach(g => {
+    const isNorway = g === 'I';
+    const btn = document.createElement('button');
+    const isActive = g === activeGroup;
+    btn.className = 'group-btn' + (isActive ? ' active' : '') + (isNorway ? ' norway-group' : '');
+    btn.textContent = g === 'I' ? '🇳🇴 I' : g;
+    btn.onclick = () => { activeGroup = g; renderGroupFilter(); renderMatchesContainer(); };
+    filter.appendChild(btn);
+  });
+}
+
+function renderMatchesContainer() {
+  const container = document.getElementById('matchesContainer');
+  container.innerHTML = '';
+
+  const showGroups = activeGroup === 'Alle' ? Object.keys(GROUPS)
+    : activeGroup === 'Sluttspill' ? []
+    : GROUPS[activeGroup] ? [activeGroup] : [];
+
+  showGroups.forEach(grp => {
+    const teams = GROUPS[grp];
+    const isNorwayGrp = grp === 'I';
+    const hdr = document.createElement('div');
+    hdr.className = 'group-header' + (isNorwayGrp ? ' norway' : '');
+    hdr.innerHTML = 'Gruppe ' + grp + (isNorwayGrp ? ' 🇳🇴' : '');
+    container.appendChild(hdr);
+
+    const box = document.createElement('div');
+    box.className = 'group-matches';
+    for (let i = 0; i < teams.length; i++) {
+      for (let j = i + 1; j < teams.length; j++) {
+        box.appendChild(buildMatchRow('g_' + grp + '_' + i + '_' + j, teams[i], teams[j]));
+      }
+    }
+    container.appendChild(box);
+  });
+
+  if (activeGroup === 'Alle' || activeGroup === 'Sluttspill') {
+    // R32
+    appendKoRound(container, 'Runde av 32', 'ko_r32', 16, [
+      'Vinner A','Runner-up B','Vinner C','Runner-up D','Vinner E','Runner-up F',
+      'Vinner G','Runner-up H','Vinner I','Runner-up J','Vinner K','Runner-up L',
+      '3.plass grp 1','3.plass grp 2','3.plass grp 3','3.plass grp 4'
+    ]);
+    appendKoRound(container, 'Runde av 16', 'ko_r16', 8,
+      Array.from({length:8},(_,i)=>'Vinner R32-'+(i*2+1)+' vs R32-'+(i*2+2)));
+    appendKoRound(container, 'Kvartfinaler', 'ko_qf', 4,
+      ['QF1','QF2','QF3','QF4']);
+    appendKoRound(container, 'Semifinaler', 'ko_sf', 2,
+      ['SF1','SF2']);
+    appendKoRound(container, 'Bronsefinale', 'ko_bronze', 1,
+      ['Bronsefinale']);
+    appendKoRound(container, 'FINALE 🏆', 'ko_final', 1,
+      ['FINALE']);
+  }
+}
+
+function appendKoRound(container, label, prefix, count, matchLabels) {
+  const title = document.createElement('div');
+  title.className = 'ko-round-title';
+  title.textContent = label;
+  container.appendChild(title);
+  const box = document.createElement('div');
+  box.className = 'group-matches';
+  for (let i = 0; i < count; i++) {
+    const mid = prefix + '_' + i;
+    box.appendChild(buildMatchRow(mid, matchLabels[i] || (prefix + '_' + i), '', true));
+  }
+  container.appendChild(box);
+}
+
+function buildMatchRow(mid, home, away, isKo) {
+  const row = document.createElement('div');
+  row.className = 'match-row';
+  const locked = new Date() >= getMatchKickoff(mid);
+  const mp = (predictions.matches || {})[mid] || {};
+
+  const teamsDiv = document.createElement('div');
+  teamsDiv.className = 'match-teams';
+  if (isKo) {
+    teamsDiv.textContent = teamDisplay(home);
+  } else {
+    const h = teamDisplay(home), a = teamDisplay(away);
+    const hn = home === 'Norge', an = away === 'Norge';
+    teamsDiv.innerHTML =
+      (hn ? '<span class="norway-team">' + escHtml(h) + '</span>' : escHtml(h)) +
+      ' &ndash; ' +
+      (an ? '<span class="norway-team">' + escHtml(a) + '</span>' : escHtml(a));
+  }
+  row.appendChild(teamsDiv);
+
+  const scoreDiv = document.createElement('div');
+  scoreDiv.className = 'score-inputs';
+
+  const hInp = makeScoreInput(mid, 'home', mp.home, locked);
+  const sep  = document.createElement('span');
+  sep.className = 'score-sep';
+  sep.textContent = '–';
+  const aInp = makeScoreInput(mid, 'away', mp.away, locked);
+
+  scoreDiv.append(hInp, sep, aInp);
+  row.appendChild(scoreDiv);
+
+  if (locked) {
+    const lk = document.createElement('span');
+    lk.className = 'match-locked';
+    lk.textContent = '🔒';
+    row.appendChild(lk);
+  }
+  return row;
+}
+
+function makeScoreInput(mid, side, val, locked) {
+  const inp = document.createElement('input');
+  inp.type = 'number'; inp.min = 0; inp.max = 99;
+  inp.className = 'score-inp';
+  inp.dataset.match = mid;
+  inp.dataset.side  = side;
+  inp.value    = val || '';
+  inp.disabled = locked;
+  inp.placeholder = '–';
+  return inp;
+}
+
+// ===== RANDOM =====
+function randomAllMatches() {
+  const mids = new Set();
+  document.querySelectorAll('.score-inp').forEach(i => mids.add(i.dataset.match));
+  mids.forEach(mid => fillRandom(mid));
+}
+
+function randomGroupMatches() {
+  if (activeGroup === 'Alle' || activeGroup === 'Sluttspill') { randomAllMatches(); return; }
+  const teams = GROUPS[activeGroup];
+  if (!teams) return;
+  for (let i = 0; i < teams.length; i++) {
+    for (let j = i+1; j < teams.length; j++) {
+      fillRandom('g_' + activeGroup + '_' + i + '_' + j);
+    }
+  }
+}
+
+function fillRandom(mid) {
+  const hi = document.querySelector('.score-inp[data-match="'+mid+'"][data-side="home"]');
+  const ai = document.querySelector('.score-inp[data-match="'+mid+'"][data-side="away"]');
+  if (hi && !hi.disabled && ai && !ai.disabled) {
+    hi.value = Math.floor(Math.random() * 5);
+    ai.value = Math.floor(Math.random() * 5);
+  }
+}
+
+// ===== TABS =====
+function showTab(tab) {
+  ['special','matches','leaderboard','rules'].forEach((t, i) => {
+    document.getElementById('sec-' + t).classList.toggle('active', t === tab);
+    document.querySelectorAll('.tab-btn')[i].classList.toggle('active', t === tab);
+  });
+  if (tab === 'leaderboard') loadLeaderboard();
+}
+
+// ===== COUNTDOWN =====
+const COUNTDOWN_TARGET = new Date('2026-06-17T00:00:00Z'); // Norge vs Danmark
+function updateCountdown() {
+  const diff = COUNTDOWN_TARGET - new Date();
+  const badge = document.getElementById('countdownBadge');
+  if (diff <= 0) {
+    badge.textContent = '🇳🇴 VM er i gang! Lykke til Norge!';
+    return;
+  }
+  const d = Math.floor(diff / 86400000);
+  const h = Math.floor((diff % 86400000) / 3600000);
+  const m = Math.floor((diff % 3600000)  / 60000);
+  const s = Math.floor((diff % 60000)    / 1000);
+  badge.textContent = '⏳ Norge vs Danmark om: ' + d + 'd ' + pad(h) + 't ' + pad(m) + 'm ' + pad(s) + 's';
+}
+function pad(n) { return String(n).padStart(2, '0'); }
+setInterval(updateCountdown, 1000);
+updateCountdown();
+
+// ===== AUTO-LOGIN =====
+window.addEventListener('DOMContentLoaded', async () => {
+  const saved = getSession();
+  if (!saved) return;
+  if (demoMode) {
+    const stored = JSON.parse(localStorage.getItem('vm2026_users') || '{}');
+    if (stored[saved]) { await finishLogin(saved); }
+    return;
+  }
+  try {
+    const doc = await db.collection('users').doc(saved).get();
+    if (doc.exists) { await finishLogin(saved); }
+    else clearSession();
+  } catch(e) { clearSession(); }
 });
 
-genMatches();
-initFirebase();
-renderUserSection();
+// Enter key shortcuts
+document.getElementById('authName').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('authPin').focus();
+});
+document.getElementById('authPin').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
 </script>
 </body>
 </html>
