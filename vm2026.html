@@ -202,10 +202,86 @@
   .badge-gold { background: #ffd700; color: #333; }
   .random-bar { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; align-items: center; }
 
-  @media (max-width: 520px) {
+  /* iOS zoom-fix: font-size < 16px trigger auto-zoom ved tastaturåpning */
+  input, select, textarea { font-size: 16px; }
+
+  @media (max-width: 640px) {
+    /* Hero - kompakt på mobil */
+    .hero { min-height: 180px; }
+    .hero-content { padding: 18px 12px 14px; }
+    .hero h1 { font-size: 1.25rem; letter-spacing: 0; }
+    .hero .subtitle { font-size: 0.95rem; }
+    .hero .tagline { font-size: 0.82rem; opacity: 0.8; }
+    .countdown-badge { font-size: 0.88rem; padding: 7px 16px; margin-top: 10px; }
+
+    /* Tabs - kompakt, ingen tekstbryting */
+    .tab-btn { font-size: 0.76rem; padding: 12px 4px; min-width: 0; flex: 1; }
+
+    /* Seksjoner og kort */
+    .section { padding: 14px 10px; }
+    .card { padding: 16px 12px; }
+
+    /* Innlogging */
     .auth-box { padding: 24px 16px; }
-    .match-row { flex-direction: column; align-items: flex-start; }
-    .hero h1 { font-size: 1.4rem; }
+    .auth-box input { padding: 14px; min-height: 52px; border-radius: 10px; }
+    .auth-box .btn { min-height: 50px; font-size: 1.05rem; }
+
+    /* Spesialspørsmål - store nok touch-flater */
+    .special-item { margin-bottom: 20px; }
+    .special-item label { font-size: 0.97rem; margin-bottom: 8px; }
+    .special-item input, .special-item select {
+      padding: 14px 12px;
+      min-height: 52px;
+      border-radius: 10px;
+      border-width: 2px;
+      -webkit-appearance: none;
+      appearance: none;
+      background-color: #fff;
+    }
+    /* Pil-ikon for select på mobil */
+    .special-item select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24'%3E%3Cpath fill='%23003087' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      padding-right: 40px;
+    }
+    .special-item input:focus, .special-item select:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(0,48,135,0.12); }
+
+    /* Kampvisning */
+    .group-filter { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 6px; gap: 6px; }
+    .group-btn { padding: 8px 14px; font-size: 0.87rem; white-space: nowrap; flex-shrink: 0; min-height: 38px; }
+    .match-row { padding: 12px 10px; flex-direction: row; flex-wrap: wrap; }
+    .match-teams { font-size: 0.88rem; min-width: 130px; flex: 1; }
+    .score-inputs input {
+      width: 50px; height: 46px; font-size: 1.15rem;
+      border-radius: 8px; padding: 6px 4px;
+    }
+    .score-sep { font-size: 1.2rem; padding: 0 2px; }
+    .random-bar { gap: 6px; }
+    .random-bar .btn { font-size: 0.83rem; padding: 9px 12px; min-height: 40px; }
+
+    /* Lagre-knapp sticky bunn */
+    .save-bar { padding: 10px 14px; gap: 6px; }
+    .save-bar .btn { min-height: 46px; font-size: 1rem; }
+    .save-msg { font-size: 0.83rem; }
+
+    /* Ledertavle */
+    .lb-row { padding: 10px 10px; gap: 8px; }
+    .lb-rank { font-size: 1.2rem; width: 28px; }
+    .lb-name { font-size: 0.93rem; }
+    .lb-points { font-size: 1rem; min-width: 40px; }
+    .lb-bar-wrap { display: none; }
+
+    /* Ledertavle-knapper - stables vertikalt */
+    #sec-leaderboard .card > div:last-child { flex-direction: column; align-items: stretch; gap: 8px; }
+    #sec-leaderboard .card > div:last-child > div { justify-content: stretch; flex-direction: column; gap: 8px; }
+    #sec-leaderboard .card > div:last-child .btn { min-height: 46px; text-align: center; justify-content: center; }
+
+    /* Admin */
+    .admin-input-row { flex-direction: column; align-items: stretch; gap: 6px; }
+    .admin-input-row label { min-width: auto; font-size: 0.92rem; }
+    .admin-input-row input, .admin-input-row select { width: 100%; min-height: 46px; padding: 10px 12px; }
+    .admin-section { padding: 16px 12px; }
   }
 </style>
 </head>
@@ -756,9 +832,12 @@ async function saveSpecial() {
 
 async function saveMatches() {
   if (!currentUser) return;
+  const now = new Date();
   document.querySelectorAll('.score-inp').forEach(inp => {
     const mid  = inp.dataset.match;
     const side = inp.dataset.side;
+    // Ikke tillat lagring av låste kamper (startet eller allerede spilt)
+    if (now >= getMatchKickoff(mid)) return;
     if (!predictions.matches[mid]) predictions.matches[mid] = {};
     predictions.matches[mid][side] = inp.value;
   });
