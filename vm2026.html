@@ -227,66 +227,77 @@
 <!-- HERO -->
 <div class="hero">
   <svg class="hero-svg-bg" viewBox="0 0 900 280" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
-    <!-- Stars scattered -->
-    <g opacity="0.20">
-      <polygon points="60,30 63,42 75,42 65,50 68,62 60,54 52,62 55,50 45,42 57,42" fill="#ffd700"/>
-      <polygon points="820,20 823,32 835,32 825,40 828,52 820,44 812,52 815,40 805,32 817,32" fill="#ffd700"/>
-      <polygon points="150,200 152,208 160,208 154,213 156,221 150,216 144,221 146,213 140,208 148,208" fill="#ffd700"/>
-      <polygon points="750,180 752,188 760,188 754,193 756,201 750,196 744,201 746,193 740,188 748,188" fill="#ffd700"/>
-      <polygon points="400,10 402,18 410,18 404,23 406,31 400,26 394,31 396,23 390,18 398,18" fill="#ffd700"/>
-      <polygon points="550,225 552,233 560,233 554,238 556,246 550,241 544,246 546,238 540,233 548,233" fill="#ffd700"/>
-      <polygon points="250,50 252,58 260,58 254,63 256,71 250,66 244,71 246,63 240,58 248,58" fill="#ffd700"/>
-      <polygon points="680,60 682,68 690,68 684,73 686,81 680,76 674,81 676,73 670,68 678,68" fill="#ffd700"/>
-      <polygon points="480,240 482,248 490,248 484,253 486,261 480,256 474,261 476,253 470,248 478,248" fill="#ffd700"/>
+    <!-- Light rays from center -->
+    <g opacity="0.045">
+      <polygon points="450,140 0,0 130,0" fill="white"/>
+      <polygon points="450,140 900,0 770,0" fill="white"/>
+      <polygon points="450,140 900,280 760,280" fill="white"/>
+      <polygon points="450,140 0,280 140,280" fill="white"/>
+      <polygon points="450,140 380,0 520,0" fill="white"/>
     </g>
-    <!-- Norwegian flag left decorative -->
-    <g transform="translate(30,60)" opacity="0.50">
-      <rect width="90" height="60" fill="#EF3340" rx="3"/>
-      <rect x="22" y="0" width="12" height="60" fill="#003087"/>
-      <rect x="0" y="22" width="90" height="12" fill="#003087"/>
-      <rect x="23" y="0" width="10" height="60" fill="#fff"/>
-      <rect x="0" y="23" width="90" height="10" fill="#fff"/>
+    <!-- Large football right -->
+    <g transform="translate(688,8)" opacity="0.17">
+      <circle cx="98" cy="98" r="96" fill="white" opacity="0.25"/>
+      <circle cx="98" cy="98" r="96" fill="none" stroke="white" stroke-width="3"/>
+      <polygon points="98,4 116,32 150,24 138,58 168,76 140,88 138,122 112,106 98,132 84,106 58,122 56,88 28,76 58,58 46,24 80,32" fill="#001060" opacity="0.75"/>
+      <circle cx="98" cy="98" r="20" fill="#001060" opacity="0.75"/>
     </g>
-    <!-- Norwegian flag right decorative -->
-    <g transform="translate(778,76)" opacity="0.42">
-      <rect width="75" height="50" fill="#EF3340" rx="3"/>
-      <rect x="18" y="0" width="10" height="50" fill="#003087"/>
-      <rect x="0" y="18" width="75" height="10" fill="#003087"/>
-      <rect x="19" y="0" width="8" height="50" fill="#fff"/>
-      <rect x="0" y="19" width="75" height="8" fill="#fff"/>
+    <!-- Small football left -->
+    <g transform="translate(54,155)" opacity="0.11">
+      <circle cx="48" cy="48" r="46" fill="white" opacity="0.3"/>
+      <circle cx="48" cy="48" r="46" fill="none" stroke="white" stroke-width="2"/>
+      <polygon points="48,4 58,22 76,16 70,36 82,48 68,54 66,72 50,62 34,72 32,54 18,48 30,36 24,16 42,22" fill="#001060" opacity="0.65"/>
     </g>
-    <!-- Football right side -->
-    <g transform="translate(744,14)" opacity="0.18">
-      <circle cx="54" cy="54" r="52" fill="#fff" stroke="#003087" stroke-width="3"/>
-      <circle cx="54" cy="54" r="14" fill="#003087"/>
-      <line x1="54" y1="2" x2="54" y2="106" stroke="#003087" stroke-width="2.5"/>
-      <line x1="2" y1="54" x2="106" y2="54" stroke="#003087" stroke-width="2.5"/>
-      <line x1="16" y1="16" x2="92" y2="92" stroke="#003087" stroke-width="2"/>
-      <line x1="92" y1="16" x2="16" y2="92" stroke="#003087" stroke-width="2"/>
+    <!-- Norwegian flag LEFT — correct proportions 154x112 (22:16 ratio, scale=7) -->
+    <g transform="translate(6,14)" opacity="0.68">
+      <rect width="154" height="112" fill="#EF3340" rx="4"/>
+      <rect x="42" y="0" width="28" height="112" fill="#fff"/>
+      <rect x="0" y="42" width="154" height="28" fill="#fff"/>
+      <rect x="49" y="0" width="14" height="112" fill="#003087"/>
+      <rect x="0" y="49" width="154" height="14" fill="#003087"/>
     </g>
-    <!-- Football small left -->
-    <g transform="translate(110,150)" opacity="0.13">
-      <circle cx="36" cy="36" r="34" fill="#fff" stroke="#003087" stroke-width="2.5"/>
-      <circle cx="36" cy="36" r="10" fill="#003087"/>
-      <line x1="36" y1="2" x2="36" y2="70" stroke="#003087" stroke-width="2"/>
-      <line x1="2" y1="36" x2="70" y2="36" stroke="#003087" stroke-width="2"/>
+    <!-- Norwegian flag RIGHT — 110x80 (scale=5) -->
+    <g transform="translate(748,56)" opacity="0.50">
+      <rect width="110" height="80" fill="#EF3340" rx="3"/>
+      <rect x="30" y="0" width="20" height="80" fill="#fff"/>
+      <rect x="0" y="30" width="110" height="20" fill="#fff"/>
+      <rect x="35" y="0" width="10" height="80" fill="#003087"/>
+      <rect x="0" y="35" width="110" height="10" fill="#003087"/>
     </g>
-    <!-- Confetti dots -->
-    <g opacity="0.25">
-      <circle cx="200" cy="40" r="6" fill="#EF3340"/>
-      <circle cx="700" cy="240" r="5" fill="#EF3340"/>
-      <circle cx="100" cy="235" r="7" fill="#ffd700"/>
-      <circle cx="855" cy="145" r="5" fill="#ffd700"/>
-      <circle cx="350" cy="262" r="5" fill="#fff"/>
-      <circle cx="600" cy="28" r="6" fill="#fff"/>
-      <circle cx="480" cy="22" r="4" fill="#EF3340"/>
-      <circle cx="320" cy="240" r="4" fill="#003087"/>
-      <circle cx="620" cy="245" r="5" fill="#ffd700"/>
+    <!-- Trophy -->
+    <g transform="translate(402,6)" opacity="0.10" fill="white">
+      <path d="M48,0 L32,0 L28,36 C14,38 4,50 4,64 C4,78 14,88 26,88 L26,98 L16,108 L80,108 L70,98 L70,88 C82,88 92,78 92,64 C92,50 82,38 68,36 L64,0 Z"/>
+      <rect x="36" y="98" width="24" height="8"/>
+      <rect x="26" y="106" width="44" height="8" rx="2"/>
     </g>
-    <!-- Red bottom stripe -->
-    <rect x="0" y="248" width="900" height="32" fill="#EF3340" opacity="0.16"/>
-    <!-- Subtle center glow -->
-    <ellipse cx="450" cy="140" rx="280" ry="100" fill="#fff" opacity="0.03"/>
+    <!-- Jersey #9 silhouette -->
+    <g transform="translate(558,44)" opacity="0.09" fill="white">
+      <path d="M50,0 L28,12 L0,28 L16,42 L28,34 L28,112 L72,112 L72,34 L84,42 L100,28 L72,12 Z"/>
+      <text x="38" y="82" font-size="30" font-weight="900" fill="#001060" font-family="Arial Black,Arial" opacity="1">9</text>
+    </g>
+    <!-- Stars -->
+    <g opacity="0.40" fill="#ffd700">
+      <polygon points="450,6 453,16 464,16 455,23 458,33 450,26 442,33 445,23 436,16 447,16"/>
+      <polygon points="380,18 383,27 393,27 385,33 388,42 380,36 372,42 375,33 367,27 377,27"/>
+      <polygon points="520,18 523,27 533,27 525,33 528,42 520,36 512,42 515,33 507,27 517,27"/>
+      <polygon points="308,12 310,19 317,19 312,23 314,30 308,26 302,30 304,23 299,19 306,19"/>
+      <polygon points="592,12 594,19 601,19 596,23 598,30 592,26 586,30 588,23 583,19 590,19"/>
+    </g>
+    <!-- Confetti -->
+    <g opacity="0.30">
+      <circle cx="210" cy="38" r="6" fill="#EF3340"/>
+      <circle cx="695" cy="242" r="5" fill="#EF3340"/>
+      <circle cx="635" cy="28" r="4" fill="#ffd700"/>
+      <circle cx="858" cy="148" r="5" fill="#ffd700"/>
+      <circle cx="348" cy="260" r="5" fill="#fff"/>
+      <circle cx="604" cy="20" r="6" fill="#fff"/>
+      <circle cx="478" cy="266" r="4" fill="#EF3340"/>
+      <circle cx="318" cy="244" r="4" fill="#ffd700"/>
+      <circle cx="168" cy="80" r="3" fill="#ffd700"/>
+      <circle cx="740" cy="190" r="3" fill="#fff"/>
+    </g>
+    <!-- Red accent bottom -->
+    <rect x="0" y="252" width="900" height="28" fill="#EF3340" opacity="0.18"/>
   </svg>
   <div class="hero-content">
     <div style="font-size:2.4rem;margin-bottom:6px;">&#9917; &#127475;&#127476; &#127942;</div>
@@ -326,7 +337,7 @@
     </div>
     <div class="special-item">
       <label>Hvem scorer Norges f&#248;rste m&#229;l i VM? <span class="points">100p</span></label>
-      <input type="text" id="sq_firstgoal" placeholder="F.eks. Erling Haaland" />
+      <input type="text" id="sq_firstgoal" placeholder="Velg eller skriv spiller" list="norwayPlayersList" autocomplete="off" />
     </div>
     <div class="special-item">
       <label>Hvor mange m&#229;l scorer Norge totalt? <span class="points">100p</span></label>
@@ -334,9 +345,50 @@
     </div>
     <div class="special-item">
       <label>Hvem blir Norges toppscorer i VM? <span class="points">50p</span></label>
-      <input type="text" id="sq_topscorer" placeholder="F.eks. Erling Haaland" />
+      <input type="text" id="sq_topscorer" placeholder="Velg eller skriv spiller" list="norwayPlayersList" autocomplete="off" />
+    </div>
+    <div class="special-item">
+      <label>Hvor langt kommer Norge i VM? <span class="points">75p</span></label>
+      <select id="sq_howfar">
+        <option value="">-- Velg --</option>
+        <option value="Gruppespill">Ut i gruppespillet</option>
+        <option value="Runde av 32">Runde av 32 (R32)</option>
+        <option value="Runde av 16">Runde av 16 (R16)</option>
+        <option value="Kvartfinale">Kvartfinale</option>
+        <option value="Semifinale">Semifinale</option>
+        <option value="Finale">Finalist (taper finalen)</option>
+        <option value="VM-vinner">VM-VINNER! &#127942;</option>
+      </select>
     </div>
     <datalist id="allTeamsList"></datalist>
+    <datalist id="norwayPlayersList">
+      <option value="Erling Braut Haaland"/>
+      <option value="Martin &#216;degaard"/>
+      <option value="Antonio Nusa"/>
+      <option value="Alexander S&#248;rloth"/>
+      <option value="J&#248;rgen Strand Larsen"/>
+      <option value="Oscar Bobb"/>
+      <option value="Andreas Schjelderup"/>
+      <option value="Jens Petter Hauge"/>
+      <option value="Thelo Aasgaard"/>
+      <option value="Sander Berge"/>
+      <option value="Patrick Berg"/>
+      <option value="Kristian Thorstvedt"/>
+      <option value="Morten Thorsby"/>
+      <option value="Fredrik Aursnes"/>
+      <option value="Kristoffer Ajer"/>
+      <option value="Julian Ryerson"/>
+      <option value="Leo &#216;stig&#229;rd"/>
+      <option value="Marcus Holmgren Pedersen"/>
+      <option value="David M&#248;ller Wolfe"/>
+      <option value="Fredrik Bj&#248;rkan"/>
+      <option value="Torbjørn Heggem"/>
+      <option value="Sondre Lang&#229;s"/>
+      <option value="Henrik Falchener"/>
+      <option value="&#216;rjan Nyland"/>
+      <option value="Egil Selvik"/>
+      <option value="Sander Tangvik"/>
+    </datalist>
   </div>
   <div class="save-bar">
     <span class="save-msg">Husk &#229; lagre tipsene dine!</span>
@@ -384,6 +436,18 @@
         <div class="admin-input-row"><label>Norges f&#248;rste m&#229;lscorer:</label><input type="text" id="adm_firstgoal" placeholder="Spiller" /></div>
         <div class="admin-input-row"><label>Norges totale m&#229;l:</label><input type="number" id="adm_totalgoals" placeholder="Antall" /></div>
         <div class="admin-input-row"><label>Norges toppscorer:</label><input type="text" id="adm_topscorer" placeholder="Spiller" /></div>
+        <div class="admin-input-row"><label>Hvor langt kom Norge:</label>
+          <select id="adm_howfar">
+            <option value="">-- Ikke satt --</option>
+            <option value="Gruppespill">Ut i gruppespillet</option>
+            <option value="Runde av 32">Runde av 32</option>
+            <option value="Runde av 16">Runde av 16</option>
+            <option value="Kvartfinale">Kvartfinale</option>
+            <option value="Semifinale">Semifinale</option>
+            <option value="Finale">Finalist</option>
+            <option value="VM-vinner">VM-VINNER</option>
+          </select>
+        </div>
       </div>
       <div style="margin-bottom:16px">
         <strong style="color:var(--blue)">Kampresultat fasit:</strong>
@@ -415,6 +479,7 @@
         <tr><td>Norges f&#248;rste m&#229;lscorer riktig</td><td><strong>100p</strong></td></tr>
         <tr><td>Norges totale m&#229;l eksakt</td><td><strong>100p</strong></td></tr>
         <tr><td>Norges toppscorer riktig</td><td><strong>50p</strong></td></tr>
+        <tr><td>Hvor langt Norge kommer riktig</td><td><strong>75p</strong></td></tr>
         <tr><td>Riktig utfall p&#229; kamp (seier/uavgjort/tap)</td><td><strong>2p</strong></td></tr>
         <tr><td>Eksakt resultat p&#229; kamp</td><td><strong>5p</strong></td></tr>
       </tbody>
@@ -683,6 +748,7 @@ async function saveSpecial() {
     firstgoal:  document.getElementById('sq_firstgoal').value.trim(),
     totalgoals: document.getElementById('sq_totalgoals').value.trim(),
     topscorer:  document.getElementById('sq_topscorer').value.trim(),
+    howfar:     document.getElementById('sq_howfar').value,
   };
   await persistPredictions();
   flashStatus('specialSaveStatus', '✓ Lagret!');
@@ -734,7 +800,7 @@ function showAdminLogin() {
   if (pw === 'vm2026') {
     document.getElementById('adminArea').style.display = '';
     const s = adminAnswers.special || {};
-    ['winner','finalist','firstgoal','totalgoals','topscorer'].forEach(k => {
+    ['winner','finalist','firstgoal','totalgoals','topscorer','howfar'].forEach(k => {
       const el = document.getElementById('adm_' + k);
       if (el) el.value = s[k] || '';
     });
@@ -761,6 +827,7 @@ async function saveAdminAnswers() {
     firstgoal:  document.getElementById('adm_firstgoal').value.trim(),
     totalgoals: document.getElementById('adm_totalgoals').value.trim(),
     topscorer:  document.getElementById('adm_topscorer').value.trim(),
+    howfar:     document.getElementById('adm_howfar').value,
   };
   if (demoMode) {
     localStorage.setItem('vm2026_admin', JSON.stringify(adminAnswers));
@@ -828,6 +895,7 @@ function calcScore(pred) {
   if (ans.firstgoal  && s.firstgoal  && norm(ans.firstgoal)  === norm(s.firstgoal))  pts += 100;
   if (ans.totalgoals && s.totalgoals && String(ans.totalgoals).trim() === String(s.totalgoals).trim()) pts += 100;
   if (ans.topscorer  && s.topscorer  && norm(ans.topscorer)  === norm(s.topscorer))  pts += 50;
+  if (ans.howfar     && s.howfar     && ans.howfar             === s.howfar)           pts += 75;
   const ma = adminAnswers.matches || {};
   Object.entries(pred.matches || {}).forEach(([mid, mp]) => {
     if (!ma[mid]) return;
@@ -858,13 +926,14 @@ function renderSpecial() {
   document.getElementById('sq_firstgoal').value  = s.firstgoal  || '';
   document.getElementById('sq_totalgoals').value = s.totalgoals || '';
   document.getElementById('sq_topscorer').value  = s.topscorer  || '';
+  document.getElementById('sq_howfar').value     = s.howfar     || '';
   updateSpecialDeadlineUI();
 }
 
 function updateSpecialDeadlineUI() {
   const now    = new Date();
   const locked = now >= SPECIAL_DEADLINE;
-  const ids = ['sq_winner','sq_finalist','sq_firstgoal','sq_totalgoals','sq_topscorer'];
+  const ids = ['sq_winner','sq_finalist','sq_firstgoal','sq_totalgoals','sq_topscorer','sq_howfar'];
   ids.forEach(id => { document.getElementById(id).disabled = locked; });
   const msg = document.getElementById('specialDeadlineMsg');
   if (locked) {
@@ -922,6 +991,7 @@ function renderMatchesContainer() {
   });
 
   if (activeGroup === 'Alle' || activeGroup === 'Sluttspill') {
+    const st = calcGroupStandings();
     // R32
     appendKoRound(container, 'Runde av 32', 'ko_r32', 16, [
       'Nr. 2 Gruppe A vs Nr. 2 Gruppe B (28. juni)',
@@ -940,7 +1010,7 @@ function renderMatchesContainer() {
       'Nr. 2 Gruppe D vs Nr. 2 Gruppe G (3. juli)',
       'Nr. 1 Gruppe J vs Nr. 2 Gruppe H (3. juli)',
       'Nr. 1 Gruppe K vs Best 3. plass (3. juli)'
-    ]);
+    ].map(l => resolveKOLabel(l, st)));
     appendKoRound(container, 'Runde av 16', 'ko_r16', 8,
       Array.from({length:8},(_,i)=>'Vinner R32-'+(i*2+1)+' vs R32-'+(i*2+2)));
     appendKoRound(container, 'Kvartfinaler', 'ko_qf', 4,
@@ -952,6 +1022,59 @@ function renderMatchesContainer() {
     appendKoRound(container, 'FINALE 🏆', 'ko_final', 1,
       ['FINALE']);
   }
+}
+
+// ===== GROUP STANDINGS =====
+function calcGroupStandings() {
+  const standings = {};
+  for (const [grp, teams] of Object.entries(GROUPS)) {
+    standings[grp] = teams.map((team, i) => ({
+      team, i, played: 0, W: 0, D: 0, L: 0, GF: 0, GA: 0, GD: 0, pts: 0
+    }));
+    for (let i = 0; i < teams.length; i++) {
+      for (let j = i + 1; j < teams.length; j++) {
+        const mid = 'g_' + grp + '_' + i + '_' + j;
+        const res = (adminAnswers.matches || {})[mid];
+        if (!res) continue;
+        const h = parseInt(res.home), a = parseInt(res.away);
+        if (isNaN(h) || isNaN(a)) continue;
+        standings[grp][i].played++; standings[grp][j].played++;
+        standings[grp][i].GF += h; standings[grp][i].GA += a;
+        standings[grp][j].GF += a; standings[grp][j].GA += h;
+        if (h > a) {
+          standings[grp][i].pts += 3; standings[grp][i].W++;
+          standings[grp][j].L++;
+        } else if (h === a) {
+          standings[grp][i].pts += 1; standings[grp][i].D++;
+          standings[grp][j].pts += 1; standings[grp][j].D++;
+        } else {
+          standings[grp][j].pts += 3; standings[grp][j].W++;
+          standings[grp][i].L++;
+        }
+      }
+    }
+    standings[grp].forEach(t => { t.GD = t.GF - t.GA; });
+    standings[grp].sort((a, b) => b.pts - a.pts || b.GD - a.GD || b.GF - a.GF);
+  }
+  return standings;
+}
+
+function resolveKOLabel(label, standings) {
+  const dateMatch = label.match(/\s*\(.*?\)\s*$/);
+  const dateStr = dateMatch ? dateMatch[0] : '';
+  const core = label.replace(/\s*\(.*?\)\s*$/, '');
+  if (!core.includes('Gruppe')) return label;
+  const parts = core.split(' vs ');
+  const resolved = parts.map(p => {
+    const m = p.trim().match(/Nr\.\s*(\d)\s+Gruppe\s+([A-L])/);
+    if (!m) return p.trim();
+    const rank = parseInt(m[1]) - 1;
+    const grp = m[2];
+    const st = standings[grp];
+    if (!st || st[rank].played < 3) return p.trim();
+    return teamDisplay(st[rank].team);
+  });
+  return resolved.join(' vs ') + dateStr;
 }
 
 function appendKoRound(container, label, prefix, count, matchLabels) {
