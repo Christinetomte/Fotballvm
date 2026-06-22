@@ -437,6 +437,27 @@
       </select>
     </div>
     <datalist id="allTeamsList"></datalist>
+  </div>
+  <div class="card" style="border-left:4px solid var(--red)">
+    <h3>&#127475;&#127476; Norges f&#248;rste m&#229;lscorer per kamp <span class="points" style="font-size:0.85rem">100p per kamp</span></h3>
+    <p style="font-size:0.88rem;color:#555;margin-bottom:14px">L&#229;ses ved avspark for den aktuelle kampen.</p>
+    <div class="special-item">
+      <label id="lbl_scorer_gI12">Irak vs Norge – 16. juni, 00:00 <span class="points">100p</span></label>
+      <input type="text" id="sq_scorer_gI12" placeholder="Hvem scorer f&#248;rst for Norge?" list="norwayPlayersList" autocomplete="off" />
+      <div id="lock_scorer_gI12" style="font-size:0.82rem;margin-top:4px"></div>
+    </div>
+    <div class="special-item">
+      <label id="lbl_scorer_gI23">Norge vs Senegal – 23. juni, 02:00 <span class="points">100p</span></label>
+      <input type="text" id="sq_scorer_gI23" placeholder="Hvem scorer f&#248;rst for Norge?" list="norwayPlayersList" autocomplete="off" />
+      <div id="lock_scorer_gI23" style="font-size:0.82rem;margin-top:4px"></div>
+    </div>
+    <div class="special-item">
+      <label id="lbl_scorer_gI02">Frankrike vs Norge – 26. juni, 21:00 <span class="points">100p</span></label>
+      <input type="text" id="sq_scorer_gI02" placeholder="Hvem scorer f&#248;rst for Norge?" list="norwayPlayersList" autocomplete="off" />
+      <div id="lock_scorer_gI02" style="font-size:0.82rem;margin-top:4px"></div>
+    </div>
+  </div>
+  <div style="display:none">
     <datalist id="norwayPlayersList">
       <option value="Erling Braut Haaland"/>
       <option value="Martin &#216;degaard"/>
@@ -512,6 +533,9 @@
         <div class="admin-input-row"><label>Norges f&#248;rste m&#229;lscorer:</label><input type="text" id="adm_firstgoal" placeholder="Spiller" /></div>
         <div class="admin-input-row"><label>Norges totale m&#229;l:</label><input type="number" id="adm_totalgoals" placeholder="Antall" /></div>
         <div class="admin-input-row"><label>Norges toppscorer:</label><input type="text" id="adm_topscorer" placeholder="Spiller" /></div>
+        <div class="admin-input-row"><label>Norges 1. m&#229;lscorer – Irak vs Norge:</label><input type="text" id="adm_scorer_gI12" placeholder="Spiller" list="norwayPlayersList" /></div>
+        <div class="admin-input-row"><label>Norges 1. m&#229;lscorer – Norge vs Senegal:</label><input type="text" id="adm_scorer_gI23" placeholder="Spiller" list="norwayPlayersList" /></div>
+        <div class="admin-input-row"><label>Norges 1. m&#229;lscorer – Frankrike vs Norge:</label><input type="text" id="adm_scorer_gI02" placeholder="Spiller" list="norwayPlayersList" /></div>
         <div class="admin-input-row"><label>Hvor langt kom Norge:</label>
           <select id="adm_howfar">
             <option value="">-- Ikke satt --</option>
@@ -556,6 +580,7 @@
         <tr><td>Norges totale m&#229;l eksakt</td><td><strong>100p</strong></td></tr>
         <tr><td>Norges toppscorer riktig</td><td><strong>50p</strong></td></tr>
         <tr><td>Hvor langt Norge kommer riktig</td><td><strong>75p</strong></td></tr>
+        <tr><td>Norges 1. m&#229;lscorer per kamp (3 kamper)</td><td><strong>100p per kamp</strong></td></tr>
         <tr><td>Riktig utfall p&#229; kamp (seier/uavgjort/tap)</td><td><strong>2p</strong></td></tr>
         <tr><td>Eksakt resultat p&#229; kamp</td><td><strong>5p</strong></td></tr>
       </tbody>
@@ -612,6 +637,13 @@ const GROUP_TEAM_DISPLAY = {
   'Usbekistan':'Usbekistan'
 };
 function teamDisplay(t) { return GROUP_TEAM_DISPLAY[t] || t; }
+
+// ===== NORGES KAMPSCORER-KONFIG =====
+const NORWAY_SCORER_MATCHES = [
+  { key: 'scorer_gI12', matchId: 'g_I_1_2', label: 'Irak vs Norge (16. juni)' },
+  { key: 'scorer_gI23', matchId: 'g_I_2_3', label: 'Norge vs Senegal (23. juni)' },
+  { key: 'scorer_gI02', matchId: 'g_I_0_2', label: 'Frankrike vs Norge (26. juni)' },
+];
 
 // ===== DEADLINES =====
 const SPECIAL_DEADLINE = new Date('2026-06-16T21:59:00Z'); // 23:59 norsk tid
@@ -818,7 +850,7 @@ async function loadUserPredictions() {
 
 async function saveSpecial() {
   if (!currentUser) return;
-  predictions.special = {
+  const sp = {
     winner:     document.getElementById('sq_winner').value.trim(),
     finalist:   document.getElementById('sq_finalist').value.trim(),
     firstgoal:  document.getElementById('sq_firstgoal').value.trim(),
@@ -826,6 +858,17 @@ async function saveSpecial() {
     topscorer:  document.getElementById('sq_topscorer').value.trim(),
     howfar:     document.getElementById('sq_howfar').value,
   };
+  // Per-kamp scorere — lagres bare hvis kampen ikke er låst ennå
+  const now = new Date();
+  NORWAY_SCORER_MATCHES.forEach(({ key, matchId }) => {
+    const inp = document.getElementById('sq_' + key);
+    if (inp && now < getMatchKickoff(matchId)) {
+      sp[key] = inp.value.trim();
+    } else if (inp) {
+      sp[key] = (predictions.special || {})[key] || ''; // behold eksisterende
+    }
+  });
+  predictions.special = sp;
   await persistPredictions();
   flashStatus('specialSaveStatus', '✓ Lagret!');
 }
@@ -879,7 +922,7 @@ function showAdminLogin() {
   if (pw === 'vm2026') {
     document.getElementById('adminArea').style.display = '';
     const s = adminAnswers.special || {};
-    ['winner','finalist','firstgoal','totalgoals','topscorer','howfar'].forEach(k => {
+    ['winner','finalist','firstgoal','totalgoals','topscorer','howfar','scorer_gI12','scorer_gI23','scorer_gI02'].forEach(k => {
       const el = document.getElementById('adm_' + k);
       if (el) el.value = s[k] || '';
     });
@@ -907,6 +950,9 @@ async function saveAdminAnswers() {
     totalgoals: document.getElementById('adm_totalgoals').value.trim(),
     topscorer:  document.getElementById('adm_topscorer').value.trim(),
     howfar:     document.getElementById('adm_howfar').value,
+    scorer_gI12: document.getElementById('adm_scorer_gI12').value.trim(),
+    scorer_gI23: document.getElementById('adm_scorer_gI23').value.trim(),
+    scorer_gI02: document.getElementById('adm_scorer_gI02').value.trim(),
   };
   if (demoMode) {
     localStorage.setItem('vm2026_admin', JSON.stringify(adminAnswers));
@@ -975,6 +1021,9 @@ function calcScore(pred) {
   if (ans.totalgoals && s.totalgoals && String(ans.totalgoals).trim() === String(s.totalgoals).trim()) pts += 100;
   if (ans.topscorer  && s.topscorer  && norm(ans.topscorer)  === norm(s.topscorer))  pts += 50;
   if (ans.howfar     && s.howfar     && ans.howfar             === s.howfar)           pts += 75;
+  NORWAY_SCORER_MATCHES.forEach(({ key }) => {
+    if (ans[key] && s[key] && norm(ans[key]) === norm(s[key])) pts += 100;
+  });
   const ma = adminAnswers.matches || {};
   Object.entries(pred.matches || {}).forEach(([mid, mp]) => {
     if (!ma[mid]) return;
@@ -1007,6 +1056,7 @@ function renderSpecial() {
   document.getElementById('sq_topscorer').value  = s.topscorer  || '';
   document.getElementById('sq_howfar').value     = s.howfar     || '';
   updateSpecialDeadlineUI();
+  updateNorwayScorerUI();
 }
 
 function updateSpecialDeadlineUI() {
@@ -1015,11 +1065,29 @@ function updateSpecialDeadlineUI() {
   const ids = ['sq_winner','sq_finalist','sq_firstgoal','sq_totalgoals','sq_topscorer','sq_howfar'];
   ids.forEach(id => { document.getElementById(id).disabled = locked; });
   const msg = document.getElementById('specialDeadlineMsg');
-  if (locked) {
-    msg.innerHTML = '<span class="locked-msg">🔒 Spesialspørsmål er stengt (fristen er utløpt)</span>';
-  } else {
-    msg.innerHTML = '<span style="color:#2a7d2a;font-weight:600">✅ Åpen – frist: 16. juni 2026, 23:59 norsk tid</span>';
+  if (msg) {
+    msg.innerHTML = locked
+      ? '<span class="locked-msg">&#128274; Spesialsp&#248;rsm&#229;l er stengt (fristen er utl&#248;pt)</span>'
+      : '<span style="color:#2a7d2a;font-weight:600">&#9989; &#197;pen – frist: 16. juni 2026, 23:59 norsk tid</span>';
   }
+}
+
+function updateNorwayScorerUI() {
+  const s = predictions.special || {};
+  const now = new Date();
+  NORWAY_SCORER_MATCHES.forEach(({ key, matchId, label }) => {
+    const inp = document.getElementById('sq_' + key);
+    const lockEl = document.getElementById('lock_' + key);
+    if (!inp) return;
+    inp.value = s[key] || '';
+    const locked = now >= getMatchKickoff(matchId);
+    inp.disabled = locked;
+    if (lockEl) {
+      lockEl.innerHTML = locked
+        ? '<span class="locked-msg">&#128274; L&#229;st — kampen har startet</span>'
+        : '<span style="color:#2a7d2a;font-weight:600;font-size:0.82rem">&#9989; &#197;pen</span>';
+    }
+  });
 }
 
 // ===== RENDER MATCHES =====
