@@ -395,6 +395,7 @@
   <button class="tab-btn active" onclick="showTab('special')">&#11088; Mine tips</button>
   <button class="tab-btn" onclick="showTab('matches')">&#128197; Kampene</button>
   <button class="tab-btn" onclick="showTab('leaderboard')">&#127942; Ledertavle</button>
+  <button class="tab-btn" onclick="showTab('stats')">&#128202; Statistikk</button>
   <button class="tab-btn" onclick="showTab('rules')">&#128203; Regler</button>
 </div>
 
@@ -413,7 +414,20 @@
     </div>
     <div class="special-item">
       <label>Hvem scorer Norges f&#248;rste m&#229;l i VM? <span class="points">100p</span></label>
-      <input type="text" id="sq_firstgoal" placeholder="Velg eller skriv spiller" list="norwayPlayersList" autocomplete="off" />
+      <select id="sq_firstgoal">
+        <option value="">-- Velg spiller --</option>
+        <option>Erling Braut Haaland</option><option>Martin Ødegaard</option>
+        <option>Antonio Nusa</option><option>Alexander Sørloth</option>
+        <option>Jørgen Strand Larsen</option><option>Oscar Bobb</option>
+        <option>Andreas Schjelderup</option><option>Jens Petter Hauge</option>
+        <option>Thelo Aasgaard</option><option>Sander Berge</option>
+        <option>Patrick Berg</option><option>Kristian Thorstvedt</option>
+        <option>Morten Thorsby</option><option>Fredrik Aursnes</option>
+        <option>Kristoffer Ajer</option><option>Julian Ryerson</option>
+        <option>Leo Østigård</option><option>Marcus Holmgren Pedersen</option>
+        <option>David Møller Wolfe</option><option>Fredrik Bjørkan</option>
+        <option>Torbjørn Heggem</option><option>Sondre Langås</option>
+      </select>
     </div>
     <div class="special-item">
       <label>Hvor mange m&#229;l scorer Norge totalt? <span class="points">100p</span></label>
@@ -421,7 +435,20 @@
     </div>
     <div class="special-item">
       <label>Hvem blir Norges toppscorer i VM? <span class="points">50p</span></label>
-      <input type="text" id="sq_topscorer" placeholder="Velg eller skriv spiller" list="norwayPlayersList" autocomplete="off" />
+      <select id="sq_topscorer">
+        <option value="">-- Velg spiller --</option>
+        <option>Erling Braut Haaland</option><option>Martin Ødegaard</option>
+        <option>Antonio Nusa</option><option>Alexander Sørloth</option>
+        <option>Jørgen Strand Larsen</option><option>Oscar Bobb</option>
+        <option>Andreas Schjelderup</option><option>Jens Petter Hauge</option>
+        <option>Thelo Aasgaard</option><option>Sander Berge</option>
+        <option>Patrick Berg</option><option>Kristian Thorstvedt</option>
+        <option>Morten Thorsby</option><option>Fredrik Aursnes</option>
+        <option>Kristoffer Ajer</option><option>Julian Ryerson</option>
+        <option>Leo Østigård</option><option>Marcus Holmgren Pedersen</option>
+        <option>David Møller Wolfe</option><option>Fredrik Bjørkan</option>
+        <option>Torbjørn Heggem</option><option>Sondre Langås</option>
+      </select>
     </div>
     <div class="special-item">
       <label>Hvor langt kommer Norge i VM? <span class="points">75p</span></label>
@@ -443,18 +470,48 @@
     <p style="font-size:0.88rem;color:#555;margin-bottom:14px">L&#229;ses ved avspark for den aktuelle kampen.</p>
     <div class="special-item">
       <label id="lbl_scorer_gI12">Irak vs Norge – 16. juni, 00:00 <span class="points">100p</span></label>
-      <input type="text" id="sq_scorer_gI12" placeholder="Hvem scorer f&#248;rst for Norge?" list="norwayPlayersList" autocomplete="off" />
+      <select id="sq_scorer_gI12"><option value="">-- Velg spiller --</option><option>Erling Braut Haaland</option><option>Martin Ødegaard</option><option>Antonio Nusa</option><option>Alexander Sørloth</option><option>Jørgen Strand Larsen</option><option>Oscar Bobb</option><option>Andreas Schjelderup</option><option>Jens Petter Hauge</option><option>Thelo Aasgaard</option><option>Sander Berge</option><option>Patrick Berg</option><option>Kristian Thorstvedt</option><option>Morten Thorsby</option><option>Fredrik Aursnes</option><option>Kristoffer Ajer</option><option>Julian Ryerson</option><option>Leo Østigård</option><option>Marcus Holmgren Pedersen</option><option>David Møller Wolfe</option><option>Fredrik Bjørkan</option><option>Torbjørn Heggem</option><option>Sondre Langås</option><option value="Ingen norsk scorer">Ingen norsk scorer</option></select>
       <div id="lock_scorer_gI12" style="font-size:0.82rem;margin-top:4px"></div>
     </div>
     <div class="special-item">
       <label id="lbl_scorer_gI23">Norge vs Senegal – 23. juni, 02:00 <span class="points">100p</span></label>
-      <input type="text" id="sq_scorer_gI23" placeholder="Hvem scorer f&#248;rst for Norge?" list="norwayPlayersList" autocomplete="off" />
+      <select id="sq_scorer_gI23"><option value="">-- Velg spiller --</option><option>Erling Braut Haaland</option><option>Martin Ødegaard</option><option>Antonio Nusa</option><option>Alexander Sørloth</option><option>Jørgen Strand Larsen</option><option>Oscar Bobb</option><option>Andreas Schjelderup</option><option>Jens Petter Hauge</option><option>Thelo Aasgaard</option><option>Sander Berge</option><option>Patrick Berg</option><option>Kristian Thorstvedt</option><option>Morten Thorsby</option><option>Fredrik Aursnes</option><option>Kristoffer Ajer</option><option>Julian Ryerson</option><option>Leo Østigård</option><option>Marcus Holmgren Pedersen</option><option>David Møller Wolfe</option><option>Fredrik Bjørkan</option><option>Torbjørn Heggem</option><option>Sondre Langås</option><option value="Ingen norsk scorer">Ingen norsk scorer</option></select>
       <div id="lock_scorer_gI23" style="font-size:0.82rem;margin-top:4px"></div>
     </div>
     <div class="special-item">
       <label id="lbl_scorer_gI02">Frankrike vs Norge – 26. juni, 21:00 <span class="points">100p</span></label>
-      <input type="text" id="sq_scorer_gI02" placeholder="Hvem scorer f&#248;rst for Norge?" list="norwayPlayersList" autocomplete="off" />
+      <select id="sq_scorer_gI02"><option value="">-- Velg spiller --</option><option>Erling Braut Haaland</option><option>Martin Ødegaard</option><option>Antonio Nusa</option><option>Alexander Sørloth</option><option>Jørgen Strand Larsen</option><option>Oscar Bobb</option><option>Andreas Schjelderup</option><option>Jens Petter Hauge</option><option>Thelo Aasgaard</option><option>Sander Berge</option><option>Patrick Berg</option><option>Kristian Thorstvedt</option><option>Morten Thorsby</option><option>Fredrik Aursnes</option><option>Kristoffer Ajer</option><option>Julian Ryerson</option><option>Leo Østigård</option><option>Marcus Holmgren Pedersen</option><option>David Møller Wolfe</option><option>Fredrik Bjørkan</option><option>Torbjørn Heggem</option><option>Sondre Langås</option><option value="Ingen norsk scorer">Ingen norsk scorer</option></select>
       <div id="lock_scorer_gI02" style="font-size:0.82rem;margin-top:4px"></div>
+    </div>
+    <div class="special-item">
+      <label id="lbl_scorer_r16_nor">Norge – 8-delsfinale <span class="points">100p</span></label>
+      <select id="sq_scorer_r16_nor" autocomplete="off">
+        <option value="">-- Velg spiller --</option>
+        <option value="Erling Braut Haaland">Erling Braut Haaland</option>
+        <option value="Martin Ødegaard">Martin Ødegaard</option>
+        <option value="Antonio Nusa">Antonio Nusa</option>
+        <option value="Alexander Sørloth">Alexander Sørloth</option>
+        <option value="Jørgen Strand Larsen">Jørgen Strand Larsen</option>
+        <option value="Oscar Bobb">Oscar Bobb</option>
+        <option value="Andreas Schjelderup">Andreas Schjelderup</option>
+        <option value="Jens Petter Hauge">Jens Petter Hauge</option>
+        <option value="Thelo Aasgaard">Thelo Aasgaard</option>
+        <option value="Sander Berge">Sander Berge</option>
+        <option value="Patrick Berg">Patrick Berg</option>
+        <option value="Kristian Thorstvedt">Kristian Thorstvedt</option>
+        <option value="Morten Thorsby">Morten Thorsby</option>
+        <option value="Fredrik Aursnes">Fredrik Aursnes</option>
+        <option value="Kristoffer Ajer">Kristoffer Ajer</option>
+        <option value="Julian Ryerson">Julian Ryerson</option>
+        <option value="Leo Østigård">Leo Østigård</option>
+        <option value="Marcus Holmgren Pedersen">Marcus Holmgren Pedersen</option>
+        <option value="David Møller Wolfe">David Møller Wolfe</option>
+        <option value="Fredrik Bjørkan">Fredrik Bjørkan</option>
+        <option value="Torbjørn Heggem">Torbjørn Heggem</option>
+        <option value="Sondre Langås">Sondre Langås</option>
+        <option value="Ingen norsk scorer">Ingen norsk scorer</option>
+      </select>
+      <div id="lock_scorer_r16_nor" style="font-size:0.82rem;margin-top:4px"></div>
     </div>
   </div>
   <div style="display:none">
@@ -536,6 +593,7 @@
         <div class="admin-input-row"><label>Norges 1. m&#229;lscorer – Irak vs Norge:</label><input type="text" id="adm_scorer_gI12" placeholder="Spiller" list="norwayPlayersList" /></div>
         <div class="admin-input-row"><label>Norges 1. m&#229;lscorer – Norge vs Senegal:</label><input type="text" id="adm_scorer_gI23" placeholder="Spiller" list="norwayPlayersList" /></div>
         <div class="admin-input-row"><label>Norges 1. m&#229;lscorer – Frankrike vs Norge:</label><input type="text" id="adm_scorer_gI02" placeholder="Spiller" list="norwayPlayersList" /></div>
+        <div class="admin-input-row"><label>Norges 1. m&#229;lscorer – 8-delsfinale:</label><input type="text" id="adm_scorer_r16_nor" placeholder="Spiller" list="norwayPlayersList" /></div>
         <div class="admin-input-row"><label>Hvor langt kom Norge:</label>
           <select id="adm_howfar">
             <option value="">-- Ikke satt --</option>
@@ -563,6 +621,17 @@
       <button class="btn btn-red" onclick="saveAdminAnswers()">&#128190; Lagre fasit</button>
       <span id="adminSaveStatus" style="margin-left:12px;color:var(--blue);font-weight:700"></span>
     </div>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="section" id="sec-stats">
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:16px">
+      <h3>&#128202; Statistikk og oversikt</h3>
+      <button class="btn btn-sm btn-outline" onclick="loadStats()">&#128260; Oppdater</button>
+    </div>
+    <div id="statsContent"><p style="color:#888">Laster...</p></div>
   </div>
 </div>
 
@@ -640,10 +709,40 @@ function teamDisplay(t) { return GROUP_TEAM_DISPLAY[t] || t; }
 
 // ===== NORGES KAMPSCORER-KONFIG =====
 const NORWAY_SCORER_MATCHES = [
-  { key: 'scorer_gI12', matchId: 'g_I_1_2', label: 'Irak vs Norge (16. juni)' },
-  { key: 'scorer_gI23', matchId: 'g_I_2_3', label: 'Norge vs Senegal (23. juni)' },
-  { key: 'scorer_gI02', matchId: 'g_I_0_2', label: 'Frankrike vs Norge (26. juni)' },
+  { key: 'scorer_gI12',   matchId: 'g_I_1_2',  label: 'Irak vs Norge (16. juni)',       kickoff: new Date('2026-06-16T22:00:00Z') },
+  { key: 'scorer_gI23',   matchId: 'g_I_2_3',  label: 'Norge vs Senegal (23. juni)',    kickoff: new Date('2026-06-23T00:00:00Z') },
+  { key: 'scorer_gI02',   matchId: 'g_I_0_2',  label: 'Frankrike vs Norge (26. juni)', kickoff: new Date('2026-06-26T19:00:00Z') },
+  { key: 'scorer_r16_nor',matchId: 'r16_nor',  label: 'Norge – 8-delsfinale',           kickoff: new Date('2026-07-04T00:00:00Z') },
 ];
+
+// Alias-tabell for smart navnematch (etternavn / kallenavn → fullt navn)
+const PLAYER_ALIASES = {
+  'haaland': 'erling braut haaland',
+  'erling': 'erling braut haaland',
+  'erling haaland': 'erling braut haaland',
+  'ødegaard': 'martin ødegaard',
+  'odegaard': 'martin ødegaard',
+  'martin': 'martin ødegaard',
+  'nusa': 'antonio nusa',
+  'sørloth': 'alexander sørloth',
+  'sorloth': 'alexander sørloth',
+  'strand larsen': 'jørgen strand larsen',
+  'bobb': 'oscar bobb',
+  'schjelderup': 'andreas schjelderup',
+  'hauge': 'jens petter hauge',
+  'berge': 'sander berge',
+  'thorstvedt': 'kristian thorstvedt',
+  'thorsby': 'morten thorsby',
+  'aursnes': 'fredrik aursnes',
+  'ajer': 'kristoffer ajer',
+  'ryerson': 'julian ryerson',
+  'østigård': 'leo østigård',
+  'ostigard': 'leo østigård',
+};
+function normPlayer(s) {
+  const n = (s || '').toLowerCase().trim();
+  return PLAYER_ALIASES[n] || n;
+}
 
 // ===== DEADLINES =====
 const SPECIAL_DEADLINE = new Date('2026-06-16T21:59:00Z'); // 23:59 norsk tid
@@ -738,7 +837,10 @@ const MATCH_KICKOFFS = {
 };
 const DEFAULT_FUTURE = new Date('2026-07-20T00:00:00Z');
 function getMatchKickoff(mid) {
-  return MATCH_KICKOFFS[mid] || DEFAULT_FUTURE;
+  if (MATCH_KICKOFFS[mid]) return MATCH_KICKOFFS[mid];
+  const nm = NORWAY_SCORER_MATCHES.find(m => m.matchId === mid);
+  if (nm) return nm.kickoff;
+  return DEFAULT_FUTURE;
 }
 
 // ===== KNOCKOUT ROUNDS =====
@@ -922,7 +1024,7 @@ function showAdminLogin() {
   if (pw === 'vm2026') {
     document.getElementById('adminArea').style.display = '';
     const s = adminAnswers.special || {};
-    ['winner','finalist','firstgoal','totalgoals','topscorer','howfar','scorer_gI12','scorer_gI23','scorer_gI02'].forEach(k => {
+    ['winner','finalist','firstgoal','totalgoals','topscorer','howfar','scorer_gI12','scorer_gI23','scorer_gI02','scorer_r16_nor'].forEach(k => {
       const el = document.getElementById('adm_' + k);
       if (el) el.value = s[k] || '';
     });
@@ -953,6 +1055,7 @@ async function saveAdminAnswers() {
     scorer_gI12: document.getElementById('adm_scorer_gI12').value.trim(),
     scorer_gI23: document.getElementById('adm_scorer_gI23').value.trim(),
     scorer_gI02: document.getElementById('adm_scorer_gI02').value.trim(),
+    scorer_r16_nor: document.getElementById('adm_scorer_r16_nor').value.trim(),
   };
   if (demoMode) {
     localStorage.setItem('vm2026_admin', JSON.stringify(adminAnswers));
@@ -1017,12 +1120,12 @@ function calcScore(pred) {
   const ans = adminAnswers.special || {};
   if (ans.winner     && s.winner     && norm(ans.winner)     === norm(s.winner))     pts += 200;
   if (ans.finalist   && s.finalist   && norm(ans.finalist)   === norm(s.finalist))   pts += 100;
-  if (ans.firstgoal  && s.firstgoal  && norm(ans.firstgoal)  === norm(s.firstgoal))  pts += 100;
+  if (ans.firstgoal  && s.firstgoal  && normPlayer(ans.firstgoal)  === normPlayer(s.firstgoal))  pts += 100;
   if (ans.totalgoals && s.totalgoals && String(ans.totalgoals).trim() === String(s.totalgoals).trim()) pts += 100;
-  if (ans.topscorer  && s.topscorer  && norm(ans.topscorer)  === norm(s.topscorer))  pts += 50;
+  if (ans.topscorer  && s.topscorer  && normPlayer(ans.topscorer)  === normPlayer(s.topscorer))  pts += 50;
   if (ans.howfar     && s.howfar     && ans.howfar             === s.howfar)           pts += 75;
   NORWAY_SCORER_MATCHES.forEach(({ key }) => {
-    if (ans[key] && s[key] && norm(ans[key]) === norm(s[key])) pts += 100;
+    if (ans[key] && s[key] && normPlayer(ans[key]) === normPlayer(s[key])) pts += 100;
   });
   const ma = adminAnswers.matches || {};
   Object.entries(pred.matches || {}).forEach(([mid, mp]) => {
@@ -1038,6 +1141,145 @@ function calcScore(pred) {
 }
 
 function norm(s) { return (s||'').toLowerCase().trim(); }
+
+// ===== STATISTIKK =====
+async function loadStats() {
+  const el = document.getElementById('statsContent');
+  if (!el) return;
+  el.innerHTML = '<p style="color:#888">Laster...</p>';
+  await loadAdminAnswers();
+
+  let allPreds = {};
+  if (demoMode) {
+    const users = JSON.parse(localStorage.getItem('vm2026_users') || '{}');
+    Object.keys(users).forEach(u => {
+      allPreds[u] = JSON.parse(localStorage.getItem('vm2026_pred_' + u) || '{"special":{},"matches":{}}');
+    });
+  } else {
+    try {
+      const snap = await db.collection('predictions').get();
+      snap.forEach(doc => { allPreds[doc.id] = doc.data(); });
+    } catch(e) {
+      el.innerHTML = '<p style="color:red">Feil: ' + e.message + '</p>';
+      return;
+    }
+  }
+
+  const names = Object.keys(allPreds);
+  if (!names.length) { el.innerHTML = '<p style="color:#888">Ingen deltakere ennå.</p>'; return; }
+  const ans = adminAnswers.special || {};
+  const ma  = adminAnswers.matches  || {};
+
+  // --- Poengfordeling per kategori ---
+  const rows = names.map(name => {
+    const pred = allPreds[name];
+    const s    = pred.special || {};
+    let specPts = 0, matchPts = 0, scorerPts = 0;
+    if (ans.winner    && s.winner    && norm(ans.winner)    === norm(s.winner))    specPts += 200;
+    if (ans.finalist  && s.finalist  && norm(ans.finalist)  === norm(s.finalist))  specPts += 100;
+    if (ans.firstgoal && s.firstgoal && normPlayer(ans.firstgoal) === normPlayer(s.firstgoal)) specPts += 100;
+    if (ans.totalgoals && s.totalgoals && String(ans.totalgoals).trim() === String(s.totalgoals).trim()) specPts += 100;
+    if (ans.topscorer && s.topscorer && normPlayer(ans.topscorer) === normPlayer(s.topscorer)) specPts += 50;
+    if (ans.howfar    && s.howfar    && ans.howfar === s.howfar) specPts += 75;
+    NORWAY_SCORER_MATCHES.forEach(({ key }) => {
+      if (ans[key] && s[key] && normPlayer(ans[key]) === normPlayer(s[key])) scorerPts += 100;
+    });
+    Object.entries(pred.matches || {}).forEach(([mid, mp]) => {
+      if (!ma[mid]) return;
+      const ah = parseInt(ma[mid].home), aa = parseInt(ma[mid].away);
+      const ph = parseInt(mp.home),      pa = parseInt(mp.away);
+      if (isNaN(ah)||isNaN(aa)||isNaN(ph)||isNaN(pa)) return;
+      if (ph === ah && pa === aa) { matchPts += 5; return; }
+      const sign = (x,y) => x>y?1:x<y?-1:0;
+      if (sign(ph,pa) === sign(ah,aa)) matchPts += 2;
+    });
+    return { name, specPts, matchPts, scorerPts, total: specPts + matchPts + scorerPts };
+  });
+  rows.sort((a, b) => b.total - a.total);
+
+  // --- Toppscorer-oversikt ---
+  const topscorerVotes = {};
+  names.forEach(name => {
+    const v = (allPreds[name].special || {}).topscorer;
+    if (!v) return;
+    const key = normPlayer(v);
+    if (!topscorerVotes[key]) topscorerVotes[key] = { display: v.trim(), count: 0, voters: [] };
+    topscorerVotes[key].count++;
+    topscorerVotes[key].voters.push(name);
+  });
+  const topscorerList = Object.values(topscorerVotes).sort((a,b) => b.count - a.count);
+
+  // --- Målscorer per kamp ---
+  const scorerSections = NORWAY_SCORER_MATCHES.map(({ key, label }) => {
+    const votes = {};
+    names.forEach(name => {
+      const v = (allPreds[name].special || {})[key];
+      if (!v) return;
+      const k = normPlayer(v);
+      if (!votes[k]) votes[k] = { display: v.trim(), count: 0, voters: [] };
+      votes[k].count++;
+      votes[k].voters.push(name);
+    });
+    const list = Object.values(votes).sort((a,b) => b.count - a.count);
+    const correctKey = ans[key] ? normPlayer(ans[key]) : null;
+    return { label, list, correctKey };
+  });
+
+  // --- Bygg HTML ---
+  let html = '';
+
+  // Poengfordeling
+  html += '<h4 style="color:var(--blue);margin-bottom:10px">Poengfordeling per deltaker</h4>';
+  html += '<div style="overflow-x:auto"><table class="rules-table"><thead><tr>' +
+    '<th>Navn</th><th>Kamptipper</th><th>Spesial</th><th>Målscorer🇳🇴</th><th>Totalt</th></tr></thead><tbody>';
+  rows.forEach((r, i) => {
+    const medals = ['🥇','🥈','🥉'];
+    const isMe = r.name === currentUser;
+    html += '<tr' + (isMe ? ' style="background:#e8f4e8;font-weight:700"' : '') + '>' +
+      '<td>' + (medals[i] || (i+1) + '.') + ' ' + escHtml(r.name) + (isMe ? ' <span class="badge badge-blue">deg</span>' : '') + '</td>' +
+      '<td>' + r.matchPts + 'p</td>' +
+      '<td>' + r.specPts + 'p</td>' +
+      '<td>' + r.scorerPts + 'p</td>' +
+      '<td><strong>' + r.total + 'p</strong></td></tr>';
+  });
+  html += '</tbody></table></div>';
+
+  // Toppscorer-oversikt
+  html += '<h4 style="color:var(--blue);margin:20px 0 10px">Hvem tipper toppscorer?</h4>';
+  if (!topscorerList.length) {
+    html += '<p style="color:#888">Ingen har tippet ennå.</p>';
+  } else {
+    html += '<div style="overflow-x:auto"><table class="rules-table"><thead><tr><th>Spiller</th><th>Antall</th><th>Hvem</th></tr></thead><tbody>';
+    topscorerList.forEach(item => {
+      const isCorrect = ans.topscorer && normPlayer(ans.topscorer) === normPlayer(item.display);
+      html += '<tr' + (isCorrect ? ' style="background:#e8f4e8"' : '') + '>' +
+        '<td>' + (isCorrect ? '✅ ' : '') + escHtml(item.display) + '</td>' +
+        '<td><strong>' + item.count + '</strong></td>' +
+        '<td style="font-size:0.85rem;color:#555">' + item.voters.map(escHtml).join(', ') + '</td></tr>';
+    });
+    html += '</tbody></table></div>';
+  }
+
+  // Målscorer per kamp
+  scorerSections.forEach(({ label, list, correctKey }) => {
+    html += '<h4 style="color:var(--blue);margin:20px 0 10px">Norges 1. scorer – ' + escHtml(label) + '</h4>';
+    if (!list.length) {
+      html += '<p style="color:#888">Ingen har tippet ennå.</p>';
+    } else {
+      html += '<div style="overflow-x:auto"><table class="rules-table"><thead><tr><th>Spiller</th><th>Antall</th><th>Hvem</th></tr></thead><tbody>';
+      list.forEach(item => {
+        const isCorrect = correctKey && normPlayer(item.display) === correctKey;
+        html += '<tr' + (isCorrect ? ' style="background:#e8f4e8"' : '') + '>' +
+          '<td>' + (isCorrect ? '✅ ' : '') + escHtml(item.display) + '</td>' +
+          '<td><strong>' + item.count + '</strong></td>' +
+          '<td style="font-size:0.85rem;color:#555">' + item.voters.map(escHtml).join(', ') + '</td></tr>';
+      });
+      html += '</tbody></table></div>';
+    }
+  });
+
+  el.innerHTML = html;
+}
 function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
@@ -1320,11 +1562,12 @@ function fillRandom(mid) {
 
 // ===== TABS =====
 function showTab(tab) {
-  ['special','matches','leaderboard','rules'].forEach((t, i) => {
+  ['special','matches','leaderboard','stats','rules'].forEach((t, i) => {
     document.getElementById('sec-' + t).classList.toggle('active', t === tab);
     document.querySelectorAll('.tab-btn')[i].classList.toggle('active', t === tab);
   });
   if (tab === 'leaderboard') loadLeaderboard();
+  if (tab === 'stats') loadStats();
 }
 
 // ===== COUNTDOWN =====
