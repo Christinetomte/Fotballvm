@@ -1466,7 +1466,7 @@ function renderMatches() {
 function renderGroupFilter() {
   const filter = document.getElementById('groupFilter');
   filter.innerHTML = '<label>Gruppe:</label>';
-  const btns = ['Alle', ...Object.keys(GROUPS), 'Sluttspill'];
+  const btns = ['Alle', ...Object.keys(GROUPS)];
   btns.forEach(g => {
     const isNorway = g === 'I';
     const btn = document.createElement('button');
@@ -2083,6 +2083,11 @@ function extractScorerName(play) {
     || '';
 }
 
+function isGoalEvent(play) {
+  const t = (play.type?.text || play.type?.abbreviation || play.type?.name || play.text || '').toLowerCase();
+  return (t.includes('goal') || t.includes('mål')) && !t.includes('no goal') && !t.includes('drinks');
+}
+
 async function fetchScorerForEventId(eventId) {
   try {
     const resp = await fetch(
@@ -2091,37 +2096,37 @@ async function fetchScorerForEventId(eventId) {
     if (!resp.ok) return null;
     const data = await resp.json();
 
-    // Try scoringPlays first, then keyEvents as fallback
-    const plays = data.scoringPlays || data.keyEvents || [];
     let firstScorer = '';
     let norwayGoals = 0;
 
+    // Use scoringPlays if present and non-empty, else keyEvents
+    const scoringPlays = Array.isArray(data.scoringPlays) && data.scoringPlays.length
+      ? data.scoringPlays : null;
+    const plays = scoringPlays || data.keyEvents || [];
+
     for (const play of plays) {
+      // When using keyEvents, must verify it's actually a goal
+      if (!scoringPlays && !isGoalEvent(play)) continue;
+
       const typeText = (play.type?.text || play.type?.abbreviation || play.type?.name || '').toLowerCase();
       const isOwnGoal = typeText.includes('own') || typeText === 'og';
       if (isOwnGoal) continue;
 
-      // Try multiple locations where team info might live
-      const team = play.team || play.scoringTeam || play.competitor;
-      // Also try via athletesInvolved → team
-      const teamViaAthlete = play.athletesInvolved?.[0]?.team;
-      const effectiveTeam = team || teamViaAthlete;
-
-      if (!isNorwayTeam(effectiveTeam)) continue;
+      const team = play.team || play.scoringTeam || play.competitor
+        || play.athletesInvolved?.[0]?.team;
+      if (!isNorwayTeam(team)) continue;
       norwayGoals++;
       if (!firstScorer) firstScorer = extractScorerName(play);
     }
 
-    // Also try data.scoring.periods[].plays[] structure (alternate ESPN format)
+    // Fallback: data.scoring.periods[].plays[]
     if (norwayGoals === 0 && data.scoring?.periods) {
       for (const period of data.scoring.periods) {
         for (const play of (period.plays || [])) {
+          if (!isGoalEvent(play)) continue;
           const typeText = (play.type?.text || '').toLowerCase();
-          if (!typeText.includes('goal') && !typeText.includes('mål')) continue;
-          const isOwnGoal = typeText.includes('own');
-          if (isOwnGoal) continue;
-          const team = play.team || play.scoringTeam;
-          if (!isNorwayTeam(team)) continue;
+          if (typeText.includes('own')) continue;
+          if (!isNorwayTeam(play.team || play.scoringTeam)) continue;
           norwayGoals++;
           if (!firstScorer) firstScorer = extractScorerName(play);
         }
@@ -2156,10 +2161,14 @@ async function debugEspnScorers() {
     const sum = await resp2.json();
     const plays = sum.scoringPlays || [];
     const keys = Object.keys(sum).join(', ');
-    const playInfo = plays.slice(0, 3).map(p =>
+    const scoringPlays = Array.isArray(sum.scoringPlays) && sum.scoringPlays.length ? sum.scoringPlays : null;
+    const keyEvents = sum.keyEvents || [];
+    const goalEvents = keyEvents.filter(isGoalEvent);
+    const usedPlays = scoringPlays || goalEvents;
+    const playInfo = usedPlays.slice(0, 5).map(p =>
       'team:' + JSON.stringify(p.team) + ' type:' + (p.type?.text||'?') + ' athlete:' + extractScorerName(p)
     ).join(' | ');
-    if (el) el.innerHTML = `<b>Event ID:</b> ${norEvent.id}<br><b>Summary-felter:</b> ${keys}<br><b>scoringPlays (3 første):</b> ${playInfo || '(ingen)'}`;
+    if (el) el.innerHTML = `<b>Event ID:</b> ${norEvent.id}<br><b>scoringPlays:</b> ${sum.scoringPlays?.length ?? 'ikke funnet'} stk<br><b>keyEvents:</b> ${keyEvents.length} stk, <b>goal-events:</b> ${goalEvents.length} stk<br><b>Mål (5 første):</b> ${playInfo || '(ingen)'}`;
   } catch(e) {
     if (el) el.textContent = '❌ Feil: ' + e.message;
   }
