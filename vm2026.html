@@ -412,7 +412,6 @@
   <button class="tab-btn" onclick="showTab('matches')">&#128197; Kampene</button>
   <button class="tab-btn" onclick="showTab('bracket')">&#127942; Sluttspill</button>
   <button class="tab-btn" onclick="showTab('leaderboard')">&#127941; Ledertavle</button>
-  <button class="tab-btn" onclick="showTab('stats')">&#128202; Statistikk</button>
 </div>
 
 <!-- SPECIAL QUESTIONS -->
@@ -596,6 +595,32 @@
       </div>
     </div>
   </div>
+  <div class="card" style="margin-top:16px">
+    <h3>&#128202; Statistikk og oversikt</h3>
+    <div id="statsContent" style="margin-top:12px"><p style="color:#888">Laster...</p></div>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <h3>&#128203; Regler og poenggiving</h3>
+    <p style="margin-bottom:14px">Tippekonkurransen g&#229;r over hele VM 2026. Alle i Happyfam kan delta!</p>
+    <table class="rules-table">
+      <thead><tr><th>Kategori</th><th>Poeng</th></tr></thead>
+      <tbody>
+        <tr><td>VM-vinner riktig</td><td><strong>200p</strong></td></tr>
+        <tr><td>Finalist (taper finalen) riktig</td><td><strong>100p</strong></td></tr>
+        <tr><td>Norges f&#248;rste m&#229;lscorer riktig</td><td><strong>100p</strong></td></tr>
+        <tr><td>Norges totale m&#229;l eksakt</td><td><strong>100p</strong></td></tr>
+        <tr><td>Norges toppscorer riktig</td><td><strong>50p</strong></td></tr>
+        <tr><td>Hvor langt Norge kommer riktig</td><td><strong>75p</strong></td></tr>
+        <tr><td>Norges 1. m&#229;lscorer per kamp</td><td><strong>100p per kamp</strong></td></tr>
+        <tr><td>Sluttspill – riktig vinner per kamp</td><td><strong>10–100p</strong></td></tr>
+        <tr><td>Riktig utfall p&#229; kamp (seier/uavgjort/tap)</td><td><strong>2p</strong></td></tr>
+        <tr><td>Eksakt resultat p&#229; kamp</td><td><strong>5p</strong></td></tr>
+      </tbody>
+    </table>
+    <div style="margin-top:14px;background:#f4f6fb;border-radius:10px;padding:12px 14px;border-left:4px solid var(--blue);font-size:0.9rem">
+      &#128274; Spesialsp&#248;rsm&#229;l stengt 16. juni &nbsp;·&nbsp; Kamper l&#229;ses ved avspark
+    </div>
+  </div>
   <div id="adminArea" style="display:none">
     <div class="admin-section">
       <h3>&#128272; Admin &#8211; Sett fasitsvar</h3>
@@ -635,8 +660,13 @@
         <div id="adm_matchLog" style="font-size:0.82rem;color:#555;margin-top:6px"></div>
       </div>
       <div style="margin-bottom:16px;background:#f4f6fb;border-radius:8px;padding:10px 12px">
-        <span style="font-size:0.88rem;color:#555">&#127760; Sluttspillkamper hentes automatisk fra ESPN. <button class="btn btn-sm btn-outline" style="margin-left:8px" onclick="manualFetchKO()">&#128260; Hent nå</button></span>
-        <div id="koFetchStatus" style="font-size:0.82rem;color:#888;margin-top:4px"></div>
+        <span style="font-size:0.88rem;color:#555">&#127760; Scorere og sluttspillkamper hentes automatisk fra ESPN.</span>
+        <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+          <button class="btn btn-sm btn-outline" onclick="manualFetchScorers()">&#9917; Hent Norges scorere nå</button>
+          <button class="btn btn-sm btn-outline" onclick="manualFetchKO()">&#128260; Hent sluttspillkamper</button>
+        </div>
+        <div id="scorerFetchStatus" style="font-size:0.82rem;color:#888;margin-top:6px"></div>
+        <div id="koFetchStatus" style="font-size:0.82rem;color:#888;margin-top:2px"></div>
       </div>
       <button class="btn btn-red" onclick="saveAdminAnswers()">&#128190; Lagre fasit</button>
       <span id="adminSaveStatus" style="margin-left:12px;color:var(--blue);font-weight:700"></span>
@@ -658,40 +688,8 @@
   </div>
 </div>
 
-<!-- STATS -->
-<div class="section" id="sec-stats">
-  <div class="card">
-    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:16px">
-      <h3>&#128202; Statistikk og oversikt</h3>
-      <button class="btn btn-sm btn-outline" onclick="loadStats()">&#128260; Oppdater</button>
-    </div>
-    <div id="statsContent"><p style="color:#888">Laster...</p></div>
-  </div>
-  <div class="card" style="margin-top:16px">
-    <h3>&#128203; Regler og poenggiving</h3>
-    <p style="margin-bottom:14px">Tippekonkurransen g&#229;r over hele gruppespillet og utslagsrundene i VM 2026. Alle i Happyfam kan delta!</p>
-    <table class="rules-table">
-      <thead><tr><th>Kategori</th><th>Poeng</th></tr></thead>
-      <tbody>
-        <tr><td>VM-vinner riktig</td><td><strong>200p</strong></td></tr>
-        <tr><td>Finalist (taper finalen) riktig</td><td><strong>100p</strong></td></tr>
-        <tr><td>Norges f&#248;rste m&#229;lscorer riktig</td><td><strong>100p</strong></td></tr>
-        <tr><td>Norges totale m&#229;l eksakt</td><td><strong>100p</strong></td></tr>
-        <tr><td>Norges toppscorer riktig</td><td><strong>50p</strong></td></tr>
-        <tr><td>Hvor langt Norge kommer riktig</td><td><strong>75p</strong></td></tr>
-        <tr><td>Norges 1. m&#229;lscorer per kamp (3 kamper)</td><td><strong>100p per kamp</strong></td></tr>
-        <tr><td>Sluttspill – riktig vinner per kamp</td><td><strong>10 / 20 / 40 / 60 / 100p</strong></td></tr>
-        <tr><td>Riktig utfall p&#229; kamp (seier/uavgjort/tap)</td><td><strong>2p</strong></td></tr>
-        <tr><td>Eksakt resultat p&#229; kamp</td><td><strong>5p</strong></td></tr>
-      </tbody>
-    </table>
-    <div style="margin-top:16px;background:#f4f6fb;border-radius:10px;padding:14px;border-left:4px solid var(--blue)">
-      <strong>Frister:</strong><br>
-      &#128274; Spesialsp&#248;rsm&#229;l stengt: <strong>16. juni 2026, 23:59 norsk tid</strong><br>
-      &#128274; Kamper og sluttspilltips l&#229;ses ved avspark
-    </div>
-  </div>
-</div>
+<!-- sec-stats kept as empty placeholder so showTab doesn't error -->
+<div class="section" id="sec-stats"></div>
 
 <script>
 // ===== FIREBASE CONFIG =====
@@ -1127,17 +1125,23 @@ function setMatchResult() {
 }
 
 async function saveAdminAnswers() {
+  const prev = adminAnswers.special || {};
+  // For auto-fetched fields: keep existing value if form is empty (prevents wiping ESPN data)
+  const field = (id, fallbackKey) => {
+    const v = document.getElementById(id)?.value?.trim();
+    return v || prev[fallbackKey || id.replace('adm_','')] || '';
+  };
   adminAnswers.special = {
-    winner:     document.getElementById('adm_winner').value.trim(),
-    finalist:   document.getElementById('adm_finalist').value.trim(),
-    firstgoal:  document.getElementById('adm_firstgoal').value.trim(),
-    totalgoals: document.getElementById('adm_totalgoals').value.trim(),
-    topscorer:  document.getElementById('adm_topscorer').value.trim(),
-    howfar:     document.getElementById('adm_howfar').value,
-    scorer_gI12: document.getElementById('adm_scorer_gI12').value.trim(),
-    scorer_gI23: document.getElementById('adm_scorer_gI23').value.trim(),
-    scorer_gI02: document.getElementById('adm_scorer_gI02').value.trim(),
-    scorer_r16_nor: document.getElementById('adm_scorer_r16_nor').value.trim(),
+    winner:         field('adm_winner'),
+    finalist:       field('adm_finalist'),
+    firstgoal:      field('adm_firstgoal'),
+    totalgoals:     field('adm_totalgoals'),
+    topscorer:      field('adm_topscorer'),
+    howfar:         document.getElementById('adm_howfar').value || prev.howfar || '',
+    scorer_gI12:    field('adm_scorer_gI12'),
+    scorer_gI23:    field('adm_scorer_gI23'),
+    scorer_gI02:    field('adm_scorer_gI02'),
+    scorer_r16_nor: field('adm_scorer_r16_nor'),
   };
   if (demoMode) {
     localStorage.setItem('vm2026_admin', JSON.stringify(adminAnswers));
@@ -1194,6 +1198,9 @@ async function loadLeaderboard() {
       '<div class="lb-points">' + s.pts + 'p</div>' +
       '</div>';
   }).join('');
+
+  // Last statistikk med samme allPreds-data
+  loadStats(allPreds);
 }
 
 function calcScore(pred) {
@@ -1232,25 +1239,28 @@ function calcScore(pred) {
 function norm(s) { return (s||'').toLowerCase().trim(); }
 
 // ===== STATISTIKK =====
-async function loadStats() {
+async function loadStats(existingPreds) {
   const el = document.getElementById('statsContent');
   if (!el) return;
-  el.innerHTML = '<p style="color:#888">Laster...</p>';
-  await loadAdminAnswers();
 
-  let allPreds = {};
-  if (demoMode) {
-    const users = JSON.parse(localStorage.getItem('vm2026_users') || '{}');
-    Object.keys(users).forEach(u => {
-      allPreds[u] = JSON.parse(localStorage.getItem('vm2026_pred_' + u) || '{"special":{},"matches":{}}');
-    });
-  } else {
-    try {
-      const snap = await db.collection('predictions').get();
-      snap.forEach(doc => { allPreds[doc.id] = doc.data(); });
-    } catch(e) {
-      el.innerHTML = '<p style="color:red">Feil: ' + e.message + '</p>';
-      return;
+  let allPreds = existingPreds || null;
+  if (!allPreds) {
+    el.innerHTML = '<p style="color:#888">Laster...</p>';
+    await loadAdminAnswers();
+    allPreds = {};
+    if (demoMode) {
+      const users = JSON.parse(localStorage.getItem('vm2026_users') || '{}');
+      Object.keys(users).forEach(u => {
+        allPreds[u] = JSON.parse(localStorage.getItem('vm2026_pred_' + u) || '{"special":{},"matches":{}}');
+      });
+    } else {
+      try {
+        const snap = await db.collection('predictions').get();
+        snap.forEach(doc => { allPreds[doc.id] = doc.data(); });
+      } catch(e) {
+        el.innerHTML = '<p style="color:red">Feil: ' + e.message + '</p>';
+        return;
+      }
     }
   }
 
@@ -1677,12 +1687,11 @@ function fillRandom(mid) {
 
 // ===== TABS =====
 function showTab(tab) {
-  ['special','matches','bracket','leaderboard','stats'].forEach((t, i) => {
+  ['special','matches','bracket','leaderboard'].forEach((t, i) => {
     document.getElementById('sec-' + t).classList.toggle('active', t === tab);
     document.querySelectorAll('.tab-btn')[i].classList.toggle('active', t === tab);
   });
   if (tab === 'leaderboard') loadLeaderboard();
-  if (tab === 'stats') loadStats();
   if (tab === 'bracket') renderBracket();
 }
 
@@ -1963,6 +1972,24 @@ async function manualFetchKO() {
     : '⚠️ Ingen kamper funnet ennå';
 }
 
+async function manualFetchScorers() {
+  const el = document.getElementById('scorerFetchStatus');
+  if (el) el.textContent = '⏳ Henter scorere fra ESPN...';
+  await fetchNorwayScorers();
+  const s = adminAnswers.special || {};
+  ['firstgoal','totalgoals','scorer_gI12','scorer_gI23','scorer_gI02','scorer_r16_nor'].forEach(k => {
+    const el2 = document.getElementById('adm_' + k);
+    if (el2 && s[k]) el2.value = s[k];
+  });
+  if (el) {
+    const scorers = ['scorer_gI12','scorer_gI23','scorer_gI02','scorer_r16_nor']
+      .filter(k => s[k]).map(k => s[k]);
+    el.textContent = scorers.length
+      ? '✅ Hentet: ' + scorers.join(', ')
+      : '⚠️ Ingen scorere funnet ennå (kampene er kanskje ikke ferdig spilt)';
+  }
+}
+
 // ===== AUTOMATISK HENTING AV NORGES SCORERE =====
 // Henter scorer-data fra ESPNs summary-API for hvert kamp Norge har spilt
 async function fetchNorwayScorers() {
@@ -2029,13 +2056,30 @@ async function fetchScorerForDate(dateStr) {
     for (const event of data.events || []) {
       const comp = event.competitions?.[0];
       if (!comp || !comp.status.type.completed) continue;
-      const teams = comp.competitors.map(c => API_TEAM_MAP[c.team.displayName] || c.team.displayName);
-      if (teams.includes('Norge')) {
-        return fetchScorerForEventId(event.id);
-      }
+      const isNorwayMatch = comp.competitors.some(c => {
+        const n = (c.team.displayName || '').toLowerCase();
+        return n === 'norway' || n === 'norge' || c.team.abbreviation === 'NOR';
+      });
+      if (isNorwayMatch) return fetchScorerForEventId(event.id);
     }
   } catch(e) {}
   return null;
+}
+
+function isNorwayTeam(team) {
+  if (!team) return false;
+  const abbr = (team.abbreviation || team.abbrev || '').toUpperCase();
+  const name = (team.displayName || team.name || '').toLowerCase();
+  return abbr === 'NOR' || name === 'norway' || name === 'norge';
+}
+
+function extractScorerName(play) {
+  // Try multiple ESPN field paths
+  return play.athletesInvolved?.[0]?.displayName
+    || play.participants?.[0]?.athlete?.displayName
+    || play.athlete?.displayName
+    || (play.text ? play.text.replace(/\s*\d+['"].*$/, '').trim() : '')  // "Haaland 23'" → "Haaland"
+    || '';
 }
 
 async function fetchScorerForEventId(eventId) {
@@ -2049,16 +2093,13 @@ async function fetchScorerForEventId(eventId) {
     let firstScorer = '';
     let norwayGoals = 0;
     for (const play of plays) {
-      const abbr = play.team?.abbreviation || play.team?.abbrev || '';
-      const dispName = API_TEAM_MAP[play.team?.displayName] || play.team?.displayName || '';
-      const isNorway = abbr === 'NOR' || dispName === 'Norge';
-      if (!isNorway) continue;
+      // Skip own goals (they benefit opponent)
+      const typeText = (play.type?.text || play.type?.abbreviation || '').toLowerCase();
+      const isOwnGoal = typeText.includes('own') || typeText === 'og';
+      if (isOwnGoal) continue;
+      if (!isNorwayTeam(play.team)) continue;
       norwayGoals++;
-      if (!firstScorer) {
-        firstScorer = play.athletesInvolved?.[0]?.displayName
-          || play.participants?.[0]?.athlete?.displayName
-          || '';
-      }
+      if (!firstScorer) firstScorer = extractScorerName(play);
     }
     return { firstScorer, norwayGoals };
   } catch(e) { return null; }
