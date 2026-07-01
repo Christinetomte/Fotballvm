@@ -413,7 +413,6 @@
   <button class="tab-btn" onclick="showTab('bracket')">&#127942; Sluttspill</button>
   <button class="tab-btn" onclick="showTab('leaderboard')">&#127941; Ledertavle</button>
   <button class="tab-btn" onclick="showTab('stats')">&#128202; Statistikk</button>
-  <button class="tab-btn" onclick="showTab('rules')">&#128203; Regler</button>
 </div>
 
 <!-- SPECIAL QUESTIONS -->
@@ -668,11 +667,7 @@
     </div>
     <div id="statsContent"><p style="color:#888">Laster...</p></div>
   </div>
-</div>
-
-<!-- RULES -->
-<div class="section" id="sec-rules">
-  <div class="card">
+  <div class="card" style="margin-top:16px">
     <h3>&#128203; Regler og poenggiving</h3>
     <p style="margin-bottom:14px">Tippekonkurransen g&#229;r over hele gruppespillet og utslagsrundene i VM 2026. Alle i Happyfam kan delta!</p>
     <table class="rules-table">
@@ -685,23 +680,15 @@
         <tr><td>Norges toppscorer riktig</td><td><strong>50p</strong></td></tr>
         <tr><td>Hvor langt Norge kommer riktig</td><td><strong>75p</strong></td></tr>
         <tr><td>Norges 1. m&#229;lscorer per kamp (3 kamper)</td><td><strong>100p per kamp</strong></td></tr>
+        <tr><td>Sluttspill – riktig vinner per kamp</td><td><strong>10 / 20 / 40 / 60 / 100p</strong></td></tr>
         <tr><td>Riktig utfall p&#229; kamp (seier/uavgjort/tap)</td><td><strong>2p</strong></td></tr>
         <tr><td>Eksakt resultat p&#229; kamp</td><td><strong>5p</strong></td></tr>
       </tbody>
     </table>
     <div style="margin-top:16px;background:#f4f6fb;border-radius:10px;padding:14px;border-left:4px solid var(--blue)">
       <strong>Frister:</strong><br>
-      &#128274; Spesialsp&#248;rsm&#229;l stenges: <strong>16. juni 2026, 23:59 norsk tid</strong><br>
-      &#128274; Kamper l&#229;ses ved avspark
-    </div>
-    <div style="margin-top:14px;background:#e8f4e8;border-radius:10px;padding:14px;border-left:4px solid #2a7d2a">
-      <strong>&#127475;&#127476; Norges tropp &#8211; spillere &#229; f&#248;lge med p&#229;:</strong><br>
-      Erling Haaland (#9) &middot; Martin &#216;degaard (#10) &middot; Antonio Nusa &middot; Trener: St&#229;le Solbakken<br>
-      <em>Norges f&#248;rste VM-deltakelse siden Frankrike 1998!</em>
-    </div>
-    <div style="margin-top:14px;background:#fff8e8;border-radius:10px;padding:14px;border-left:4px solid #ffd700">
-      <strong>Gruppe I &#8211; Norges gruppe:</strong><br>
-      Norge &middot; Frankrike &middot; Irak &middot; Senegal
+      &#128274; Spesialsp&#248;rsm&#229;l stengt: <strong>16. juni 2026, 23:59 norsk tid</strong><br>
+      &#128274; Kamper og sluttspilltips l&#229;ses ved avspark
     </div>
   </div>
 </div>
@@ -803,9 +790,12 @@ const PLAYER_ALIASES = {
   'haaland': 'erling braut haaland',
   'håland': 'erling braut haaland',
   'haland': 'erling braut haaland',
+  'braut': 'erling braut haaland',
+  'braut haaland': 'erling braut haaland',
   'erling': 'erling braut haaland',
   'erling haaland': 'erling braut haaland',
   'erling håland': 'erling braut haaland',
+  'erling braut': 'erling braut haaland',
   'ødegaard': 'martin ødegaard',
   'odegaard': 'martin ødegaard',
   'martin': 'martin ødegaard',
@@ -1687,7 +1677,7 @@ function fillRandom(mid) {
 
 // ===== TABS =====
 function showTab(tab) {
-  ['special','matches','bracket','leaderboard','stats','rules'].forEach((t, i) => {
+  ['special','matches','bracket','leaderboard','stats'].forEach((t, i) => {
     document.getElementById('sec-' + t).classList.toggle('active', t === tab);
     document.querySelectorAll('.tab-btn')[i].classList.toggle('active', t === tab);
   });
@@ -1838,6 +1828,7 @@ function startAutoFetch() {
   updateAutoFetchStatus();
   fetchLiveResults().then(ok => { if (ok) loadLeaderboard(); });
   fetchKOBracket();
+  fetchNorwayScorers();
   if (autoFetchTimer) clearInterval(autoFetchTimer);
   autoFetchTimer = setInterval(async () => {
     const ok = await fetchLiveResults();
@@ -1845,6 +1836,7 @@ function startAutoFetch() {
       loadLeaderboard();
     }
     fetchKOBracket();
+    fetchNorwayScorers();
   }, 5 * 60 * 1000);
 }
 
@@ -1969,6 +1961,107 @@ async function manualFetchKO() {
   if (el) el.textContent = ok
     ? '✅ Oppdatert – ' + (adminAnswers.koMatches||[]).length + ' kamper hentet'
     : '⚠️ Ingen kamper funnet ennå';
+}
+
+// ===== AUTOMATISK HENTING AV NORGES SCORERE =====
+// Henter scorer-data fra ESPNs summary-API for hvert kamp Norge har spilt
+async function fetchNorwayScorers() {
+  // Gruppe-kampene til Norge med kjente datoer
+  const groupMatches = [
+    { dateStr: '20260616', key: 'scorer_gI12' },
+    { dateStr: '20260623', key: 'scorer_gI23' },
+    { dateStr: '20260626', key: 'scorer_gI02' },
+  ];
+
+  let totalNorwayGoals = 0;
+  let firstVMGoaler = '';
+  let updated = false;
+  if (!adminAnswers.special) adminAnswers.special = {};
+
+  // Finn ESPN event-ID for hvert kamp og hent scorer
+  for (const { dateStr, key } of groupMatches) {
+    const result = await fetchScorerForDate(dateStr);
+    if (!result) continue;
+    if (result.firstScorer) {
+      adminAnswers.special[key] = result.firstScorer;
+      if (!firstVMGoaler) firstVMGoaler = result.firstScorer;
+      updated = true;
+    }
+    totalNorwayGoals += result.norwayGoals;
+  }
+
+  // Sjekk om Norge har spilt i sluttspillet (fra koMatches)
+  const koNorway = (adminAnswers.koMatches || []).filter(m =>
+    m.completed && (m.t1 === 'Norge' || m.t2 === 'Norge')
+  );
+  for (const m of koNorway) {
+    const result = await fetchScorerForEventId(m.id);
+    if (!result) continue;
+    // R16 er scorer_r16_nor, videre runder kan legges til
+    if (m.round === 'r16') {
+      if (result.firstScorer) { adminAnswers.special['scorer_r16_nor'] = result.firstScorer; updated = true; }
+    }
+    totalNorwayGoals += result.norwayGoals;
+  }
+
+  // Sett totalgoals og firstgoal automatisk
+  if (totalNorwayGoals > 0) {
+    adminAnswers.special.totalgoals = String(totalNorwayGoals);
+    updated = true;
+  }
+  if (firstVMGoaler && !adminAnswers.special.firstgoal) {
+    adminAnswers.special.firstgoal = firstVMGoaler;
+    updated = true;
+  }
+
+  if (updated && !demoMode) {
+    try { await db.collection('admin').doc('answers').set(adminAnswers); } catch(e) {}
+  }
+}
+
+async function fetchScorerForDate(dateStr) {
+  try {
+    const resp = await fetch(
+      'https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard?dates=' + dateStr + '&limit=50'
+    );
+    if (!resp.ok) return null;
+    const data = await resp.json();
+    for (const event of data.events || []) {
+      const comp = event.competitions?.[0];
+      if (!comp || !comp.status.type.completed) continue;
+      const teams = comp.competitors.map(c => API_TEAM_MAP[c.team.displayName] || c.team.displayName);
+      if (teams.includes('Norge')) {
+        return fetchScorerForEventId(event.id);
+      }
+    }
+  } catch(e) {}
+  return null;
+}
+
+async function fetchScorerForEventId(eventId) {
+  try {
+    const resp = await fetch(
+      'https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/summary?event=' + eventId
+    );
+    if (!resp.ok) return null;
+    const data = await resp.json();
+    const plays = data.scoringPlays || [];
+    let firstScorer = '';
+    let norwayGoals = 0;
+    for (const play of plays) {
+      const abbr = play.team?.abbreviation || play.team?.abbrev || '';
+      const dispName = API_TEAM_MAP[play.team?.displayName] || play.team?.displayName || '';
+      const isNorway = abbr === 'NOR' || dispName === 'Norge';
+      if (!isNorway) continue;
+      norwayGoals++;
+      if (!firstScorer) {
+        firstScorer = play.athletesInvolved?.[0]?.displayName
+          || play.participants?.[0]?.athlete?.displayName
+          || '';
+      }
+    }
+    return { firstScorer, norwayGoals };
+  } catch(e) { return null; }
 }
 
 function renderBracket() {
