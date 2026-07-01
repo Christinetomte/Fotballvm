@@ -664,6 +664,7 @@
         <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
           <button class="btn btn-sm btn-outline" onclick="manualFetchScorers()">&#9917; Hent Norges scorere nå</button>
           <button class="btn btn-sm btn-outline" onclick="manualFetchKO()">&#128260; Hent sluttspillkamper</button>
+          <button class="btn btn-sm btn-outline" onclick="debugEspnScorers()">&#128269; Debug ESPN</button>
         </div>
         <div id="scorerFetchStatus" style="font-size:0.82rem;color:#888;margin-top:6px"></div>
         <div id="koFetchStatus" style="font-size:0.82rem;color:#888;margin-top:2px"></div>
@@ -2089,20 +2090,79 @@ async function fetchScorerForEventId(eventId) {
     );
     if (!resp.ok) return null;
     const data = await resp.json();
-    const plays = data.scoringPlays || [];
+
+    // Try scoringPlays first, then keyEvents as fallback
+    const plays = data.scoringPlays || data.keyEvents || [];
     let firstScorer = '';
     let norwayGoals = 0;
+
     for (const play of plays) {
-      // Skip own goals (they benefit opponent)
-      const typeText = (play.type?.text || play.type?.abbreviation || '').toLowerCase();
+      const typeText = (play.type?.text || play.type?.abbreviation || play.type?.name || '').toLowerCase();
       const isOwnGoal = typeText.includes('own') || typeText === 'og';
       if (isOwnGoal) continue;
-      if (!isNorwayTeam(play.team)) continue;
+
+      // Try multiple locations where team info might live
+      const team = play.team || play.scoringTeam || play.competitor;
+      // Also try via athletesInvolved → team
+      const teamViaAthlete = play.athletesInvolved?.[0]?.team;
+      const effectiveTeam = team || teamViaAthlete;
+
+      if (!isNorwayTeam(effectiveTeam)) continue;
       norwayGoals++;
       if (!firstScorer) firstScorer = extractScorerName(play);
     }
+
+    // Also try data.scoring.periods[].plays[] structure (alternate ESPN format)
+    if (norwayGoals === 0 && data.scoring?.periods) {
+      for (const period of data.scoring.periods) {
+        for (const play of (period.plays || [])) {
+          const typeText = (play.type?.text || '').toLowerCase();
+          if (!typeText.includes('goal') && !typeText.includes('mål')) continue;
+          const isOwnGoal = typeText.includes('own');
+          if (isOwnGoal) continue;
+          const team = play.team || play.scoringTeam;
+          if (!isNorwayTeam(team)) continue;
+          norwayGoals++;
+          if (!firstScorer) firstScorer = extractScorerName(play);
+        }
+      }
+    }
+
     return { firstScorer, norwayGoals };
   } catch(e) { return null; }
+}
+
+async function debugEspnScorers() {
+  const el = document.getElementById('scorerFetchStatus');
+  if (el) el.textContent = '⏳ Henter debug-info fra ESPN...';
+  // Try to find Norway's first group match (June 16)
+  try {
+    const resp = await fetch('https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard?dates=20260616&limit=50');
+    const data = await resp.json();
+    const events = data.events || [];
+    let norEvent = null;
+    for (const ev of events) {
+      const comp = ev.competitions?.[0];
+      if (!comp) continue;
+      const isNor = comp.competitors?.some(c => isNorwayTeam(c.team));
+      if (isNor) { norEvent = ev; break; }
+    }
+    if (!norEvent) {
+      if (el) el.textContent = '⚠️ Fant ingen Norge-kamp 16. juni i ESPN. Events: ' + events.length;
+      return;
+    }
+    // Fetch summary for this event
+    const resp2 = await fetch('https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/summary?event=' + norEvent.id);
+    const sum = await resp2.json();
+    const plays = sum.scoringPlays || [];
+    const keys = Object.keys(sum).join(', ');
+    const playInfo = plays.slice(0, 3).map(p =>
+      'team:' + JSON.stringify(p.team) + ' type:' + (p.type?.text||'?') + ' athlete:' + extractScorerName(p)
+    ).join(' | ');
+    if (el) el.innerHTML = `<b>Event ID:</b> ${norEvent.id}<br><b>Summary-felter:</b> ${keys}<br><b>scoringPlays (3 første):</b> ${playInfo || '(ingen)'}`;
+  } catch(e) {
+    if (el) el.textContent = '❌ Feil: ' + e.message;
+  }
 }
 
 function renderBracket() {
