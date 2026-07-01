@@ -205,6 +205,21 @@
   /* iOS zoom-fix: font-size < 16px trigger auto-zoom ved tastaturåpning */
   input, select, textarea { font-size: 16px; }
 
+  /* BRACKET */
+  .bracket-round-nav { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:16px; }
+  .br-tab { background:#e8edf8; color:var(--blue); border:none; border-radius:20px; padding:7px 16px; font-size:0.9rem; font-weight:600; cursor:pointer; transition:all .2s; }
+  .br-tab.active { background:var(--blue); color:#fff; }
+  .bracket-match { background:#f4f6fb; border-radius:12px; padding:14px; margin-bottom:10px; }
+  .bracket-match-label { font-size:0.78rem; color:#888; margin-bottom:8px; }
+  .bracket-pick-row { display:flex; gap:8px; align-items:center; }
+  .pick-btn { flex:1; padding:12px 8px; border:2px solid #dde3f0; border-radius:10px; background:#fff; font-size:0.95rem; font-weight:600; cursor:pointer; transition:all .2s; min-height:48px; }
+  .pick-btn:hover { border-color:var(--blue); }
+  .pick-btn.pick-selected { background:var(--blue); color:#fff; border-color:var(--blue); }
+  .pick-btn.locked { opacity:0.6; cursor:default; }
+  .bracket-vs { color:#aaa; font-weight:700; flex-shrink:0; }
+  .bracket-pts-badge { font-size:0.75rem; color:var(--blue); font-weight:700; background:#e8edf8; border-radius:8px; padding:2px 8px; margin-left:8px; }
+  @media(max-width:640px){.pick-btn{font-size:0.85rem;padding:10px 4px;}}
+
   @media (max-width: 640px) {
     /* Hero - kompakt på mobil */
     .hero { min-height: 180px; }
@@ -387,6 +402,7 @@
 <!-- TOPBAR -->
 <div class="topbar" id="topbar" style="display:none">
   <div class="user-info">Innlogget som: <strong id="topbarName"></strong></div>
+  <div id="autoSaveIndicator" style="font-size:0.82rem;min-width:140px"></div>
   <button class="btn btn-sm btn-red" onclick="doLogout()">Logg ut</button>
 </div>
 
@@ -394,7 +410,8 @@
 <div class="tabs" id="mainTabs" style="display:none">
   <button class="tab-btn active" onclick="showTab('special')">&#11088; Mine tips</button>
   <button class="tab-btn" onclick="showTab('matches')">&#128197; Kampene</button>
-  <button class="tab-btn" onclick="showTab('leaderboard')">&#127942; Ledertavle</button>
+  <button class="tab-btn" onclick="showTab('bracket')">&#127942; Sluttspill</button>
+  <button class="tab-btn" onclick="showTab('leaderboard')">&#127941; Ledertavle</button>
   <button class="tab-btn" onclick="showTab('stats')">&#128202; Statistikk</button>
   <button class="tab-btn" onclick="showTab('rules')">&#128203; Regler</button>
 </div>
@@ -406,15 +423,15 @@
     <div id="specialDeadlineMsg" style="margin-bottom:14px"></div>
     <div class="special-item">
       <label>Hvilket lag vinner VM? <span class="points">200p</span></label>
-      <input type="text" id="sq_winner" placeholder="F.eks. Norge" list="allTeamsList" autocomplete="off" />
+      <input type="text" id="sq_winner" placeholder="F.eks. Norge" list="allTeamsList" autocomplete="off" oninput="autoSave()" />
     </div>
     <div class="special-item">
       <label>Hvem taper i finalen? <span class="points">100p</span></label>
-      <input type="text" id="sq_finalist" placeholder="F.eks. Brasil" list="allTeamsList" autocomplete="off" />
+      <input type="text" id="sq_finalist" placeholder="F.eks. Brasil" list="allTeamsList" autocomplete="off" oninput="autoSave()" />
     </div>
     <div class="special-item">
       <label>Hvem scorer Norges f&#248;rste m&#229;l i VM? <span class="points">100p</span></label>
-      <select id="sq_firstgoal">
+      <select id="sq_firstgoal" onchange="autoSave()">
         <option value="">-- Velg spiller --</option>
         <option>Erling Braut Haaland</option><option>Martin Ødegaard</option>
         <option>Antonio Nusa</option><option>Alexander Sørloth</option>
@@ -431,11 +448,11 @@
     </div>
     <div class="special-item">
       <label>Hvor mange m&#229;l scorer Norge totalt? <span class="points">100p</span></label>
-      <input type="number" id="sq_totalgoals" placeholder="Antall m&#229;l" min="0" max="99" />
+      <input type="number" id="sq_totalgoals" placeholder="Antall m&#229;l" min="0" max="99" oninput="autoSave()" />
     </div>
     <div class="special-item">
       <label>Hvem blir Norges toppscorer i VM? <span class="points">50p</span></label>
-      <select id="sq_topscorer">
+      <select id="sq_topscorer" onchange="autoSave()">
         <option value="">-- Velg spiller --</option>
         <option>Erling Braut Haaland</option><option>Martin Ødegaard</option>
         <option>Antonio Nusa</option><option>Alexander Sørloth</option>
@@ -452,7 +469,7 @@
     </div>
     <div class="special-item">
       <label>Hvor langt kommer Norge i VM? <span class="points">75p</span></label>
-      <select id="sq_howfar">
+      <select id="sq_howfar" onchange="autoSave()">
         <option value="">-- Velg --</option>
         <option value="Gruppespill">Ut i gruppespillet</option>
         <option value="Runde av 32">Runde av 32 (R32)</option>
@@ -470,22 +487,22 @@
     <p style="font-size:0.88rem;color:#555;margin-bottom:14px">L&#229;ses ved avspark for den aktuelle kampen.</p>
     <div class="special-item">
       <label id="lbl_scorer_gI12">Irak vs Norge – 16. juni, 00:00 <span class="points">100p</span></label>
-      <select id="sq_scorer_gI12"><option value="">-- Velg spiller --</option><option>Erling Braut Haaland</option><option>Martin Ødegaard</option><option>Antonio Nusa</option><option>Alexander Sørloth</option><option>Jørgen Strand Larsen</option><option>Oscar Bobb</option><option>Andreas Schjelderup</option><option>Jens Petter Hauge</option><option>Thelo Aasgaard</option><option>Sander Berge</option><option>Patrick Berg</option><option>Kristian Thorstvedt</option><option>Morten Thorsby</option><option>Fredrik Aursnes</option><option>Kristoffer Ajer</option><option>Julian Ryerson</option><option>Leo Østigård</option><option>Marcus Holmgren Pedersen</option><option>David Møller Wolfe</option><option>Fredrik Bjørkan</option><option>Torbjørn Heggem</option><option>Sondre Langås</option><option value="Ingen norsk scorer">Ingen norsk scorer</option></select>
+      <select id="sq_scorer_gI12" onchange="autoSave()"><option value="">-- Velg spiller --</option><option>Erling Braut Haaland</option><option>Martin Ødegaard</option><option>Antonio Nusa</option><option>Alexander Sørloth</option><option>Jørgen Strand Larsen</option><option>Oscar Bobb</option><option>Andreas Schjelderup</option><option>Jens Petter Hauge</option><option>Thelo Aasgaard</option><option>Sander Berge</option><option>Patrick Berg</option><option>Kristian Thorstvedt</option><option>Morten Thorsby</option><option>Fredrik Aursnes</option><option>Kristoffer Ajer</option><option>Julian Ryerson</option><option>Leo Østigård</option><option>Marcus Holmgren Pedersen</option><option>David Møller Wolfe</option><option>Fredrik Bjørkan</option><option>Torbjørn Heggem</option><option>Sondre Langås</option><option value="Ingen norsk scorer">Ingen norsk scorer</option></select>
       <div id="lock_scorer_gI12" style="font-size:0.82rem;margin-top:4px"></div>
     </div>
     <div class="special-item">
       <label id="lbl_scorer_gI23">Norge vs Senegal – 23. juni, 02:00 <span class="points">100p</span></label>
-      <select id="sq_scorer_gI23"><option value="">-- Velg spiller --</option><option>Erling Braut Haaland</option><option>Martin Ødegaard</option><option>Antonio Nusa</option><option>Alexander Sørloth</option><option>Jørgen Strand Larsen</option><option>Oscar Bobb</option><option>Andreas Schjelderup</option><option>Jens Petter Hauge</option><option>Thelo Aasgaard</option><option>Sander Berge</option><option>Patrick Berg</option><option>Kristian Thorstvedt</option><option>Morten Thorsby</option><option>Fredrik Aursnes</option><option>Kristoffer Ajer</option><option>Julian Ryerson</option><option>Leo Østigård</option><option>Marcus Holmgren Pedersen</option><option>David Møller Wolfe</option><option>Fredrik Bjørkan</option><option>Torbjørn Heggem</option><option>Sondre Langås</option><option value="Ingen norsk scorer">Ingen norsk scorer</option></select>
+      <select id="sq_scorer_gI23" onchange="autoSave()"><option value="">-- Velg spiller --</option><option>Erling Braut Haaland</option><option>Martin Ødegaard</option><option>Antonio Nusa</option><option>Alexander Sørloth</option><option>Jørgen Strand Larsen</option><option>Oscar Bobb</option><option>Andreas Schjelderup</option><option>Jens Petter Hauge</option><option>Thelo Aasgaard</option><option>Sander Berge</option><option>Patrick Berg</option><option>Kristian Thorstvedt</option><option>Morten Thorsby</option><option>Fredrik Aursnes</option><option>Kristoffer Ajer</option><option>Julian Ryerson</option><option>Leo Østigård</option><option>Marcus Holmgren Pedersen</option><option>David Møller Wolfe</option><option>Fredrik Bjørkan</option><option>Torbjørn Heggem</option><option>Sondre Langås</option><option value="Ingen norsk scorer">Ingen norsk scorer</option></select>
       <div id="lock_scorer_gI23" style="font-size:0.82rem;margin-top:4px"></div>
     </div>
     <div class="special-item">
       <label id="lbl_scorer_gI02">Frankrike vs Norge – 26. juni, 21:00 <span class="points">100p</span></label>
-      <select id="sq_scorer_gI02"><option value="">-- Velg spiller --</option><option>Erling Braut Haaland</option><option>Martin Ødegaard</option><option>Antonio Nusa</option><option>Alexander Sørloth</option><option>Jørgen Strand Larsen</option><option>Oscar Bobb</option><option>Andreas Schjelderup</option><option>Jens Petter Hauge</option><option>Thelo Aasgaard</option><option>Sander Berge</option><option>Patrick Berg</option><option>Kristian Thorstvedt</option><option>Morten Thorsby</option><option>Fredrik Aursnes</option><option>Kristoffer Ajer</option><option>Julian Ryerson</option><option>Leo Østigård</option><option>Marcus Holmgren Pedersen</option><option>David Møller Wolfe</option><option>Fredrik Bjørkan</option><option>Torbjørn Heggem</option><option>Sondre Langås</option><option value="Ingen norsk scorer">Ingen norsk scorer</option></select>
+      <select id="sq_scorer_gI02" onchange="autoSave()"><option value="">-- Velg spiller --</option><option>Erling Braut Haaland</option><option>Martin Ødegaard</option><option>Antonio Nusa</option><option>Alexander Sørloth</option><option>Jørgen Strand Larsen</option><option>Oscar Bobb</option><option>Andreas Schjelderup</option><option>Jens Petter Hauge</option><option>Thelo Aasgaard</option><option>Sander Berge</option><option>Patrick Berg</option><option>Kristian Thorstvedt</option><option>Morten Thorsby</option><option>Fredrik Aursnes</option><option>Kristoffer Ajer</option><option>Julian Ryerson</option><option>Leo Østigård</option><option>Marcus Holmgren Pedersen</option><option>David Møller Wolfe</option><option>Fredrik Bjørkan</option><option>Torbjørn Heggem</option><option>Sondre Langås</option><option value="Ingen norsk scorer">Ingen norsk scorer</option></select>
       <div id="lock_scorer_gI02" style="font-size:0.82rem;margin-top:4px"></div>
     </div>
     <div class="special-item">
       <label id="lbl_scorer_r16_nor">Norge – 8-delsfinale <span class="points">100p</span></label>
-      <select id="sq_scorer_r16_nor" autocomplete="off">
+      <select id="sq_scorer_r16_nor" autocomplete="off" onchange="autoSave()">
         <option value="">-- Velg spiller --</option>
         <option value="Erling Braut Haaland">Erling Braut Haaland</option>
         <option value="Martin Ødegaard">Martin Ødegaard</option>
@@ -618,9 +635,27 @@
         </div>
         <div id="adm_matchLog" style="font-size:0.82rem;color:#555;margin-top:6px"></div>
       </div>
+      <div style="margin-bottom:16px;background:#f4f6fb;border-radius:8px;padding:10px 12px">
+        <span style="font-size:0.88rem;color:#555">&#127760; Sluttspillkamper hentes automatisk fra ESPN. <button class="btn btn-sm btn-outline" style="margin-left:8px" onclick="manualFetchKO()">&#128260; Hent nå</button></span>
+        <div id="koFetchStatus" style="font-size:0.82rem;color:#888;margin-top:4px"></div>
+      </div>
       <button class="btn btn-red" onclick="saveAdminAnswers()">&#128190; Lagre fasit</button>
       <span id="adminSaveStatus" style="margin-left:12px;color:var(--blue);font-weight:700"></span>
     </div>
+  </div>
+</div>
+
+<!-- BRACKET -->
+<div class="section" id="sec-bracket">
+  <div class="card">
+    <h3>&#127942; Sluttspill-tipping</h3>
+    <p style="font-size:0.88rem;color:#555;margin-bottom:14px">Velg hvem du tror vinner hver kamp i sluttspillet. L&#229;ses ved avspark.</p>
+    <div id="bracketContainer"><p style="color:#888">Laster...</p></div>
+  </div>
+  <div class="save-bar">
+    <span class="save-msg">Tips l&#229;ses automatisk ved avspark</span>
+    <span class="save-status" id="bracketSaveStatus"></span>
+    <button class="btn btn-gold" onclick="saveBracket()">&#128190; Lagre sluttspilltips</button>
   </div>
 </div>
 
@@ -715,11 +750,62 @@ const NORWAY_SCORER_MATCHES = [
   { key: 'scorer_r16_nor',matchId: 'r16_nor',  label: 'Norge – 8-delsfinale',           kickoff: new Date('2026-07-04T00:00:00Z') },
 ];
 
+// ===== KNOCKOUT BRACKET DEFINITIONS =====
+const KO_ROUND_DEF = [
+  { id:'r32',    label:'Runde av 32',  pts:10,  icon:'32' },
+  { id:'r16',    label:'Runde av 16',  pts:20,  icon:'16' },
+  { id:'qf',     label:'Kvartfinale',  pts:40,  icon:'QF' },
+  { id:'sf',     label:'Semifinale',   pts:60,  icon:'SF' },
+  { id:'final',  label:'Finale',       pts:100, icon:'🏆' },
+];
+
+const KO_MATCH_LIST = [
+  // R32 (16 matches)
+  {id:'b_r32_01',round:'r32',ko:new Date('2026-07-01T22:00:00Z')},
+  {id:'b_r32_02',round:'r32',ko:new Date('2026-07-01T22:00:00Z')},
+  {id:'b_r32_03',round:'r32',ko:new Date('2026-07-02T01:00:00Z')},
+  {id:'b_r32_04',round:'r32',ko:new Date('2026-07-02T22:00:00Z')},
+  {id:'b_r32_05',round:'r32',ko:new Date('2026-07-03T01:00:00Z')},
+  {id:'b_r32_06',round:'r32',ko:new Date('2026-07-03T22:00:00Z')},
+  {id:'b_r32_07',round:'r32',ko:new Date('2026-07-04T01:00:00Z')},
+  {id:'b_r32_08',round:'r32',ko:new Date('2026-07-04T22:00:00Z')},
+  {id:'b_r32_09',round:'r32',ko:new Date('2026-07-04T22:00:00Z')},
+  {id:'b_r32_10',round:'r32',ko:new Date('2026-07-05T01:00:00Z')},
+  {id:'b_r32_11',round:'r32',ko:new Date('2026-07-05T01:00:00Z')},
+  {id:'b_r32_12',round:'r32',ko:new Date('2026-07-05T22:00:00Z')},
+  {id:'b_r32_13',round:'r32',ko:new Date('2026-07-05T22:00:00Z')},
+  {id:'b_r32_14',round:'r32',ko:new Date('2026-07-06T01:00:00Z')},
+  {id:'b_r32_15',round:'r32',ko:new Date('2026-07-06T01:00:00Z')},
+  {id:'b_r32_16',round:'r32',ko:new Date('2026-07-06T22:00:00Z')},
+  // R16 (8 matches)
+  {id:'b_r16_01',round:'r16',ko:new Date('2026-07-08T22:00:00Z')},
+  {id:'b_r16_02',round:'r16',ko:new Date('2026-07-09T01:00:00Z')},
+  {id:'b_r16_03',round:'r16',ko:new Date('2026-07-09T22:00:00Z')},
+  {id:'b_r16_04',round:'r16',ko:new Date('2026-07-10T01:00:00Z')},
+  {id:'b_r16_05',round:'r16',ko:new Date('2026-07-10T22:00:00Z')},
+  {id:'b_r16_06',round:'r16',ko:new Date('2026-07-11T01:00:00Z')},
+  {id:'b_r16_07',round:'r16',ko:new Date('2026-07-11T22:00:00Z')},
+  {id:'b_r16_08',round:'r16',ko:new Date('2026-07-12T01:00:00Z')},
+  // QF (4 matches)
+  {id:'b_qf_01',round:'qf',ko:new Date('2026-07-14T22:00:00Z')},
+  {id:'b_qf_02',round:'qf',ko:new Date('2026-07-15T01:00:00Z')},
+  {id:'b_qf_03',round:'qf',ko:new Date('2026-07-15T22:00:00Z')},
+  {id:'b_qf_04',round:'qf',ko:new Date('2026-07-16T01:00:00Z')},
+  // SF (2 matches)
+  {id:'b_sf_01',round:'sf',ko:new Date('2026-07-18T22:00:00Z')},
+  {id:'b_sf_02',round:'sf',ko:new Date('2026-07-19T22:00:00Z')},
+  // Final (1 match)
+  {id:'b_final',round:'final',ko:new Date('2026-07-22T22:00:00Z')},
+];
+
 // Alias-tabell for smart navnematch (etternavn / kallenavn → fullt navn)
 const PLAYER_ALIASES = {
   'haaland': 'erling braut haaland',
+  'håland': 'erling braut haaland',
+  'haland': 'erling braut haaland',
   'erling': 'erling braut haaland',
   'erling haaland': 'erling braut haaland',
+  'erling håland': 'erling braut haaland',
   'ødegaard': 'martin ødegaard',
   'odegaard': 'martin ødegaard',
   'martin': 'martin ødegaard',
@@ -855,8 +941,9 @@ const KO_ROUNDS = [
 // ===== STATE =====
 let db = null;
 let currentUser = null;
-let predictions = { special: {}, matches: {} };
-let adminAnswers = { special: {}, matches: {} };
+let predictions = { special: {}, matches: {}, bracket: {} };
+let adminAnswers = { special: {}, matches: {}, koMatches: [] };
+let activeBracketRound = 'r32';
 let activeGroup = 'I';
 let demoMode = false;
 
@@ -919,6 +1006,7 @@ async function finishLogin(name) {
   await loadAdminAnswers();
   renderSpecial();
   renderMatches();
+  renderBracket();
   loadLeaderboard();
   startAutoFetch();
 }
@@ -926,7 +1014,7 @@ async function finishLogin(name) {
 function doLogout() {
   currentUser = null;
   clearSession();
-  predictions = { special: {}, matches: {} };
+  predictions = { special: {}, matches: {}, bracket: {} };
   document.getElementById('authOverlay').style.display = '';
   document.getElementById('topbar').style.display = 'none';
   document.getElementById('mainTabs').style.display = 'none';
@@ -1010,12 +1098,16 @@ function flashStatus(id, msg) {
 // ===== ADMIN =====
 async function loadAdminAnswers() {
   if (demoMode) {
-    adminAnswers = JSON.parse(localStorage.getItem('vm2026_admin') || '{"special":{},"matches":{}}');
+    adminAnswers = JSON.parse(localStorage.getItem('vm2026_admin') || '{"special":{},"matches":{},"koMatches":[]}');
+    adminAnswers.koMatches = JSON.parse(localStorage.getItem('vm2026_koMatches') || '[]');
     return;
   }
   try {
     const doc = await db.collection('admin').doc('answers').get();
     if (doc.exists) adminAnswers = doc.data();
+    if (!adminAnswers.koMatches) adminAnswers.koMatches = [];
+    const kmDoc = await db.collection('admin').doc('koMatches').get();
+    if (kmDoc.exists && kmDoc.data().matches) adminAnswers.koMatches = kmDoc.data().matches;
   } catch(e) {}
 }
 
@@ -1137,6 +1229,13 @@ function calcScore(pred) {
     const sign = (x,y) => x>y?1:x<y?-1:0;
     if (sign(ph,pa) === sign(ah,aa)) pts += 2;
   });
+  // Bracket picks
+  const bpicks = pred.bracket || {};
+  (adminAnswers.koMatches || []).forEach(m => {
+    if (!m.winner) return;
+    const pick = bpicks[m.id];
+    if (pick && norm(pick) === norm(m.winner)) pts += (m.roundPts || 0);
+  });
   return pts;
 }
 
@@ -1221,17 +1320,37 @@ async function loadStats() {
       votes[k].voters.push(name);
     });
     const list = Object.values(votes).sort((a,b) => b.count - a.count);
-    const correctKey = ans[key] ? normPlayer(ans[key]) : null;
-    return { label, list, correctKey };
+    const correctRaw = ans[key] || '';
+    const correctKey = correctRaw ? normPlayer(correctRaw) : null;
+    return { label, list, correctKey, correctRaw };
   });
 
   // --- Bygg HTML ---
+  const answerBox = (label, value) => value
+    ? '<div style="background:#e8f4e8;border-left:4px solid #2a7d2a;border-radius:8px;padding:8px 12px;margin-bottom:10px;font-size:0.92rem">' +
+      '✅ <strong>Riktig svar:</strong> ' + escHtml(label) + ': <strong>' + escHtml(value) + '</strong></div>'
+    : '<div style="background:#f4f6fb;border-left:4px solid #aaa;border-radius:8px;padding:8px 12px;margin-bottom:10px;font-size:0.92rem">' +
+      '⏳ <strong>' + escHtml(label) + ':</strong> Fasit ikke satt ennå</div>';
+
+  const voterTable = (list, correctKey) => {
+    let t = '<div style="overflow-x:auto"><table class="rules-table"><thead><tr><th>Tipp</th><th>Antall</th><th>Hvem tippet dette</th></tr></thead><tbody>';
+    list.forEach(item => {
+      const isCorrect = correctKey && normPlayer(item.display) === correctKey;
+      t += '<tr' + (isCorrect ? ' style="background:#e8f4e8;font-weight:600"' : '') + '>' +
+        '<td>' + (isCorrect ? '✅ ' : '') + escHtml(item.display) + '</td>' +
+        '<td>' + item.count + '</td>' +
+        '<td style="font-size:0.85rem;color:#555">' + item.voters.map(escHtml).join(', ') + '</td></tr>';
+    });
+    t += '</tbody></table></div>';
+    return t;
+  };
+
   let html = '';
 
   // Poengfordeling
-  html += '<h4 style="color:var(--blue);margin-bottom:10px">Poengfordeling per deltaker</h4>';
+  html += '<h4 style="color:var(--blue);margin-bottom:10px">📊 Poengfordeling per deltaker</h4>';
   html += '<div style="overflow-x:auto"><table class="rules-table"><thead><tr>' +
-    '<th>Navn</th><th>Kamptipper</th><th>Spesial</th><th>Målscorer🇳🇴</th><th>Totalt</th></tr></thead><tbody>';
+    '<th>Navn</th><th title="Poeng fra kamptipper">Kamper</th><th title="VM-vinner, finalist, Norges mål osv">Spesial</th><th title="Norges 1. målscorer per kamp">Scorer 🇳🇴</th><th>Totalt</th></tr></thead><tbody>';
   rows.forEach((r, i) => {
     const medals = ['🥇','🥈','🥉'];
     const isMe = r.name === currentUser;
@@ -1245,36 +1364,41 @@ async function loadStats() {
   html += '</tbody></table></div>';
 
   // Toppscorer-oversikt
-  html += '<h4 style="color:var(--blue);margin:20px 0 10px">Hvem tipper toppscorer?</h4>';
+  html += '<h4 style="color:var(--blue);margin:24px 0 8px">🏆 Hvem tipper Norges toppscorer?</h4>';
+  html += answerBox('Norges toppscorer', ans.topscorer || '');
   if (!topscorerList.length) {
     html += '<p style="color:#888">Ingen har tippet ennå.</p>';
   } else {
-    html += '<div style="overflow-x:auto"><table class="rules-table"><thead><tr><th>Spiller</th><th>Antall</th><th>Hvem</th></tr></thead><tbody>';
-    topscorerList.forEach(item => {
-      const isCorrect = ans.topscorer && normPlayer(ans.topscorer) === normPlayer(item.display);
-      html += '<tr' + (isCorrect ? ' style="background:#e8f4e8"' : '') + '>' +
-        '<td>' + (isCorrect ? '✅ ' : '') + escHtml(item.display) + '</td>' +
-        '<td><strong>' + item.count + '</strong></td>' +
-        '<td style="font-size:0.85rem;color:#555">' + item.voters.map(escHtml).join(', ') + '</td></tr>';
-    });
-    html += '</tbody></table></div>';
+    html += voterTable(topscorerList, ans.topscorer ? normPlayer(ans.topscorer) : null);
+  }
+
+  // Norges første mål i VM (spesialspørsmål)
+  html += '<h4 style="color:var(--blue);margin:24px 0 8px">⚽ Norges første mål i VM (spesialspørsmål)</h4>';
+  html += answerBox('Norges første mål i VM', ans.firstgoal || '');
+  const firstgoalVotes = {};
+  names.forEach(name => {
+    const v = (allPreds[name].special || {}).firstgoal;
+    if (!v) return;
+    const k = normPlayer(v);
+    if (!firstgoalVotes[k]) firstgoalVotes[k] = { display: v.trim(), count: 0, voters: [] };
+    firstgoalVotes[k].count++;
+    firstgoalVotes[k].voters.push(name);
+  });
+  const firstgoalList = Object.values(firstgoalVotes).sort((a,b) => b.count - a.count);
+  if (!firstgoalList.length) {
+    html += '<p style="color:#888">Ingen har tippet ennå.</p>';
+  } else {
+    html += voterTable(firstgoalList, ans.firstgoal ? normPlayer(ans.firstgoal) : null);
   }
 
   // Målscorer per kamp
-  scorerSections.forEach(({ label, list, correctKey }) => {
-    html += '<h4 style="color:var(--blue);margin:20px 0 10px">Norges 1. scorer – ' + escHtml(label) + '</h4>';
+  scorerSections.forEach(({ label, list, correctKey, correctRaw }) => {
+    html += '<h4 style="color:var(--blue);margin:24px 0 8px">🇳🇴 Norges 1. scorer – ' + escHtml(label) + '</h4>';
+    html += answerBox('Riktig 1. scorer', correctRaw);
     if (!list.length) {
       html += '<p style="color:#888">Ingen har tippet ennå.</p>';
     } else {
-      html += '<div style="overflow-x:auto"><table class="rules-table"><thead><tr><th>Spiller</th><th>Antall</th><th>Hvem</th></tr></thead><tbody>';
-      list.forEach(item => {
-        const isCorrect = correctKey && normPlayer(item.display) === correctKey;
-        html += '<tr' + (isCorrect ? ' style="background:#e8f4e8"' : '') + '>' +
-          '<td>' + (isCorrect ? '✅ ' : '') + escHtml(item.display) + '</td>' +
-          '<td><strong>' + item.count + '</strong></td>' +
-          '<td style="font-size:0.85rem;color:#555">' + item.voters.map(escHtml).join(', ') + '</td></tr>';
-      });
-      html += '</tbody></table></div>';
+      html += voterTable(list, correctKey);
     }
   });
 
@@ -1530,6 +1654,7 @@ function makeScoreInput(mid, side, val, locked) {
   inp.value    = val || '';
   inp.disabled = locked;
   inp.placeholder = '–';
+  if (!locked) inp.addEventListener('input', autoSave);
   return inp;
 }
 
@@ -1562,12 +1687,13 @@ function fillRandom(mid) {
 
 // ===== TABS =====
 function showTab(tab) {
-  ['special','matches','leaderboard','stats','rules'].forEach((t, i) => {
+  ['special','matches','bracket','leaderboard','stats','rules'].forEach((t, i) => {
     document.getElementById('sec-' + t).classList.toggle('active', t === tab);
     document.querySelectorAll('.tab-btn')[i].classList.toggle('active', t === tab);
   });
   if (tab === 'leaderboard') loadLeaderboard();
   if (tab === 'stats') loadStats();
+  if (tab === 'bracket') renderBracket();
 }
 
 // ===== COUNTDOWN =====
@@ -1711,14 +1837,244 @@ async function manualFetch() {
 function startAutoFetch() {
   updateAutoFetchStatus();
   fetchLiveResults().then(ok => { if (ok) loadLeaderboard(); });
+  fetchKOBracket();
   if (autoFetchTimer) clearInterval(autoFetchTimer);
   autoFetchTimer = setInterval(async () => {
     const ok = await fetchLiveResults();
     if (ok && document.getElementById('sec-leaderboard').classList.contains('active')) {
       loadLeaderboard();
     }
+    fetchKOBracket();
   }, 5 * 60 * 1000);
 }
+
+// ===== AUTO-SAVE =====
+let autoSaveTimer = null;
+function autoSave() {
+  const el = document.getElementById('autoSaveIndicator');
+  if (el) el.innerHTML = '<span style="color:#ffd700;font-size:0.82rem">&#8987; Lagrer automatisk...</span>';
+  if (autoSaveTimer) clearTimeout(autoSaveTimer);
+  autoSaveTimer = setTimeout(async () => {
+    // Collect current match inputs before saving
+    const now = new Date();
+    document.querySelectorAll('.score-inp').forEach(inp => {
+      const mid  = inp.dataset.match;
+      const side = inp.dataset.side;
+      if (now >= getMatchKickoff(mid)) return;
+      if (!predictions.matches[mid]) predictions.matches[mid] = {};
+      predictions.matches[mid][side] = inp.value;
+    });
+    // Collect special inputs
+    const sp = predictions.special || {};
+    const spIds = ['sq_winner','sq_finalist','sq_firstgoal','sq_totalgoals','sq_topscorer','sq_howfar'];
+    spIds.forEach(id => {
+      const el2 = document.getElementById(id);
+      if (el2 && !el2.disabled) {
+        const key = id.replace('sq_','');
+        sp[key] = el2.value.trim();
+      }
+    });
+    NORWAY_SCORER_MATCHES.forEach(({ key, matchId }) => {
+      const inp = document.getElementById('sq_' + key);
+      if (inp && now < getMatchKickoff(matchId)) sp[key] = inp.value.trim();
+    });
+    predictions.special = sp;
+    await persistPredictions();
+    if (el) el.innerHTML = '<span style="color:#ffd700;font-size:0.82rem">&#9989; Automatisk lagret</span>';
+    setTimeout(() => { if (el) el.innerHTML = ''; }, 3000);
+  }, 2000);
+}
+
+// ===== BRACKET =====
+function showBracketRound(roundId) {
+  activeBracketRound = roundId;
+  document.querySelectorAll('.br-tab').forEach(b => b.classList.toggle('active', b.dataset.round === roundId));
+  renderBracketMatches();
+}
+
+function getKORound(dateStr) {
+  const d = new Date(dateStr).getTime();
+  if (d >= Date.parse('2026-06-29') && d < Date.parse('2026-07-07')) return { id:'r32',   label:'Runde av 32', pts:10  };
+  if (d >= Date.parse('2026-07-07') && d < Date.parse('2026-07-13')) return { id:'r16',   label:'Runde av 16', pts:20  };
+  if (d >= Date.parse('2026-07-13') && d < Date.parse('2026-07-17')) return { id:'qf',    label:'Kvartfinale', pts:40  };
+  if (d >= Date.parse('2026-07-17') && d < Date.parse('2026-07-21')) return { id:'sf',    label:'Semifinale',  pts:60  };
+  if (d >= Date.parse('2026-07-21'))                                  return { id:'final', label:'Finale',      pts:100 };
+  return null;
+}
+
+async function fetchKOBracket() {
+  const koMatches = [];
+  const seen = new Set();
+  // Fetch in 3 batches: R32, R16, QF-Final
+  const ranges = ['20260629-20260706','20260707-20260712','20260713-20260722'];
+  for (const range of ranges) {
+    try {
+      const resp = await fetch(
+        'https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard?dates=' + range + '&limit=50'
+      );
+      if (!resp.ok) continue;
+      const data = await resp.json();
+      if (!data.events) continue;
+      for (const event of data.events) {
+        if (seen.has(event.id)) continue;
+        seen.add(event.id);
+        const comp = event.competitions && event.competitions[0];
+        if (!comp) continue;
+        const round = getKORound(event.date);
+        if (!round) continue;
+        const home = comp.competitors.find(c => c.homeAway === 'home');
+        const away = comp.competitors.find(c => c.homeAway === 'away');
+        if (!home || !away) continue;
+        const t1 = API_TEAM_MAP[home.team.displayName] || home.team.displayName;
+        const t2 = API_TEAM_MAP[away.team.displayName] || away.team.displayName;
+        const completed = comp.status.type.completed;
+        let winner = '';
+        if (completed) {
+          if (home.winner === true) winner = t1;
+          else if (away.winner === true) winner = t2;
+          else {
+            const s1 = parseInt(home.score), s2 = parseInt(away.score);
+            if (!isNaN(s1) && !isNaN(s2) && s1 !== s2) winner = s1 > s2 ? t1 : t2;
+          }
+        }
+        koMatches.push({
+          id: String(event.id),
+          round: round.id,
+          roundLabel: round.label,
+          roundPts: round.pts,
+          t1, t2,
+          kickoff: event.date,
+          completed,
+          winner,
+        });
+      }
+    } catch(e) {}
+  }
+  if (!koMatches.length) return false;
+  koMatches.sort((a,b) => new Date(a.kickoff) - new Date(b.kickoff));
+  adminAnswers.koMatches = koMatches;
+  if (demoMode) {
+    localStorage.setItem('vm2026_koMatches', JSON.stringify(koMatches));
+  } else {
+    try { await db.collection('admin').doc('koMatches').set({ matches: koMatches }); } catch(e) {}
+  }
+  renderBracket();
+  return true;
+}
+
+async function manualFetchKO() {
+  const el = document.getElementById('koFetchStatus');
+  if (el) el.textContent = '⏳ Henter sluttspillkamper...';
+  const ok = await fetchKOBracket();
+  if (el) el.textContent = ok
+    ? '✅ Oppdatert – ' + (adminAnswers.koMatches||[]).length + ' kamper hentet'
+    : '⚠️ Ingen kamper funnet ennå';
+}
+
+function renderBracket() {
+  const container = document.getElementById('bracketContainer');
+  if (!container) return;
+  const km = adminAnswers.koMatches || [];
+  if (!km.length) {
+    container.innerHTML = '<p style="color:#888;text-align:center;padding:20px">⏳ Henter sluttspillkamper fra ESPN...</p>';
+    return;
+  }
+  // Build round tabs from rounds that have matches
+  const roundsPresent = KO_ROUND_DEF.filter(rd => km.some(m => m.round === rd.id));
+  // Default to first round with unlocked matches, or last round
+  const now = new Date();
+  if (!activeBracketRound || !km.some(m => m.round === activeBracketRound)) {
+    activeBracketRound = (roundsPresent.find(rd => km.filter(m=>m.round===rd.id).some(m=>now<new Date(m.kickoff))) || roundsPresent[roundsPresent.length-1] || KO_ROUND_DEF[0]).id;
+  }
+  let nav = '<div class="bracket-round-nav">';
+  roundsPresent.forEach(rd => {
+    nav += '<button class="br-tab' + (rd.id === activeBracketRound ? ' active' : '') +
+      '" data-round="' + rd.id + '" onclick="showBracketRound(\'' + rd.id + '\')">' +
+      escHtml(rd.label) + ' <span class="bracket-pts-badge">' + rd.pts + 'p</span></button>';
+  });
+  nav += '</div><div id="bracketMatchList"></div>';
+  container.innerHTML = nav;
+  renderBracketMatches();
+}
+
+function renderBracketMatches() {
+  const el = document.getElementById('bracketMatchList');
+  if (!el) return;
+  const now = new Date();
+  const matches = (adminAnswers.koMatches || []).filter(m => m.round === activeBracketRound);
+  const picks = predictions.bracket || {};
+
+  if (!matches.length) { el.innerHTML = '<p style="color:#888">Ingen kamper hentet ennå for denne runden.</p>'; return; }
+
+  let html = '';
+  matches.forEach((m, i) => {
+    const kickoff = new Date(m.kickoff);
+    const locked = now >= kickoff || m.completed;
+    const pick = picks[m.id] || '';
+    const dt = kickoff.toLocaleDateString('no-NO',{weekday:'short',day:'numeric',month:'short'}) + ' ' +
+      kickoff.toLocaleTimeString('no-NO',{hour:'2-digit',minute:'2-digit'});
+
+    html += '<div class="bracket-match">';
+    // Header line with date + lock status + result if done
+    html += '<div class="bracket-match-label">';
+    if (m.completed && m.winner) {
+      html += '✅ ' + escHtml(dt) + ' · Vinner: <strong>' + escHtml(m.winner) + '</strong>';
+    } else if (locked) {
+      html += '🔒 ' + escHtml(dt) + ' · Låst';
+    } else {
+      html += '📅 ' + escHtml(dt) + ' · <span class="bracket-pts-badge">' + m.roundPts + 'p</span>';
+    }
+    html += '</div>';
+
+    if (m.completed) {
+      // Show result and whether user got it right
+      const correct = pick && norm(pick) === norm(m.winner);
+      html += '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px">';
+      html += '<span style="flex:1;text-align:center;padding:8px;border-radius:8px;font-weight:600;background:' + (m.winner===m.t1?'var(--blue)':'#eee') + ';color:' + (m.winner===m.t1?'#fff':'#555') + '">' + escHtml(m.t1) + '</span>';
+      html += '<span style="color:#aaa;font-weight:700;flex-shrink:0">vs</span>';
+      html += '<span style="flex:1;text-align:center;padding:8px;border-radius:8px;font-weight:600;background:' + (m.winner===m.t2?'var(--blue)':'#eee') + ';color:' + (m.winner===m.t2?'#fff':'#555') + '">' + escHtml(m.t2) + '</span>';
+      html += '</div>';
+      html += '<div style="font-size:0.82rem;margin-top:6px;color:' + (correct?'#2a7d2a':pick?'#c0392b':'#888') + '">';
+      if (correct) html += '✅ Riktig! +' + m.roundPts + 'p';
+      else if (pick) html += '❌ Du tippet: ' + escHtml(pick);
+      else html += '– Ikke tippet';
+      html += '</div>';
+    } else if (locked) {
+      html += '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px">';
+      html += '<span style="flex:1;text-align:center;padding:8px;border-radius:8px;background:#eee;color:#555;font-weight:600">' + escHtml(m.t1) + '</span>';
+      html += '<span style="color:#aaa;font-weight:700;flex-shrink:0">vs</span>';
+      html += '<span style="flex:1;text-align:center;padding:8px;border-radius:8px;background:#eee;color:#555;font-weight:600">' + escHtml(m.t2) + '</span>';
+      html += '</div>';
+      html += '<div style="font-size:0.82rem;margin-top:6px;color:#888">' + (pick ? 'Ditt tipp: <strong>' + escHtml(pick) + '</strong>' : '– Ikke tippet') + '</div>';
+    } else {
+      const t1s = m.t1.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+      const t2s = m.t2.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+      html += '<div class="bracket-pick-row">';
+      html += '<button class="pick-btn' + (pick===m.t1?' pick-selected':'') + '" onclick="pickBracket(\'' + m.id + '\',\'' + t1s + '\')">' + escHtml(m.t1) + '</button>';
+      html += '<span class="bracket-vs">vs</span>';
+      html += '<button class="pick-btn' + (pick===m.t2?' pick-selected':'') + '" onclick="pickBracket(\'' + m.id + '\',\'' + t2s + '\')">' + escHtml(m.t2) + '</button>';
+      html += '</div>';
+      if (pick) html += '<div style="font-size:0.82rem;color:#2a7d2a;margin-top:4px">✓ Tippet: <strong>' + escHtml(pick) + '</strong></div>';
+    }
+    html += '</div>';
+  });
+  el.innerHTML = html;
+}
+
+function pickBracket(matchId, team) {
+  if (!predictions.bracket) predictions.bracket = {};
+  predictions.bracket[matchId] = team;
+  renderBracketMatches();
+  autoSave();
+}
+
+async function saveBracket() {
+  if (!currentUser) return;
+  await persistPredictions();
+  flashStatus('bracketSaveStatus', '&#10003; Lagret!');
+}
+
+// renderAdminKoTeams/saveKoTeams removed — data comes from ESPN automatically
 
 // ===== AUTO-LOGIN =====
 window.addEventListener('DOMContentLoaded', async () => {
