@@ -1364,33 +1364,54 @@ async function loadStats(existingPreds) {
   });
   html += '</tbody></table></div>';
 
-  // Toppscorer-oversikt
-  html += '<h4 style="color:var(--blue);margin:24px 0 8px">🏆 Hvem tipper Norges toppscorer?</h4>';
-  html += answerBox('Norges toppscorer', ans.topscorer || '');
-  if (!topscorerList.length) {
-    html += '<p style="color:#888">Ingen har tippet ennå.</p>';
-  } else {
-    html += voterTable(topscorerList, ans.topscorer ? normPlayer(ans.topscorer) : null);
+  // Helper: build votes map from a field, with optional normalizer
+  function buildVotes(field, normalizer) {
+    const votes = {};
+    names.forEach(name => {
+      const v = (allPreds[name].special || {})[field];
+      if (!v) return;
+      const k = normalizer ? normalizer(v) : norm(v);
+      if (!votes[k]) votes[k] = { display: v.trim(), count: 0, voters: [] };
+      votes[k].count++;
+      votes[k].voters.push(name);
+    });
+    return Object.values(votes).sort((a,b) => b.count - a.count);
   }
 
-  // Norges første mål i VM (spesialspørsmål)
-  html += '<h4 style="color:var(--blue);margin:24px 0 8px">⚽ Norges første mål i VM (spesialspørsmål)</h4>';
-  html += answerBox('Norges første mål i VM', ans.firstgoal || '');
-  const firstgoalVotes = {};
-  names.forEach(name => {
-    const v = (allPreds[name].special || {}).firstgoal;
-    if (!v) return;
-    const k = normPlayer(v);
-    if (!firstgoalVotes[k]) firstgoalVotes[k] = { display: v.trim(), count: 0, voters: [] };
-    firstgoalVotes[k].count++;
-    firstgoalVotes[k].voters.push(name);
-  });
-  const firstgoalList = Object.values(firstgoalVotes).sort((a,b) => b.count - a.count);
-  if (!firstgoalList.length) {
-    html += '<p style="color:#888">Ingen har tippet ennå.</p>';
-  } else {
-    html += voterTable(firstgoalList, ans.firstgoal ? normPlayer(ans.firstgoal) : null);
+  function statsSection(emoji, title, answerLabel, answerValue, voteList, correctKey) {
+    let s = '<h4 style="color:var(--blue);margin:24px 0 8px">' + emoji + ' ' + escHtml(title) + '</h4>';
+    s += answerBox(answerLabel, answerValue);
+    if (!voteList.length) {
+      s += '<p style="color:#888">Ingen har tippet ennå.</p>';
+    } else {
+      s += voterTable(voteList, correctKey);
+    }
+    return s;
   }
+
+  // VM-vinner
+  html += statsSection('🏆', 'Hvem vinner VM?', 'VM-vinner', ans.winner || '',
+    buildVotes('winner'), ans.winner ? norm(ans.winner) : null);
+
+  // Finalist
+  html += statsSection('🥈', 'Hvem taper i finalen?', 'Finalist', ans.finalist || '',
+    buildVotes('finalist'), ans.finalist ? norm(ans.finalist) : null);
+
+  // Norges første mål (spesialspørsmål)
+  html += statsSection('⚽', 'Norges første mål i VM (spesialspørsmål)', 'Norges første mål i VM', ans.firstgoal || '',
+    buildVotes('firstgoal', normPlayer), ans.firstgoal ? normPlayer(ans.firstgoal) : null);
+
+  // Norges totale mål
+  html += statsSection('🔢', 'Hvor mange mål scorer Norge totalt?', 'Norges totale mål', ans.totalgoals ? ans.totalgoals + ' mål' : '',
+    buildVotes('totalgoals', v => String(v).trim()), ans.totalgoals ? String(ans.totalgoals).trim() : null);
+
+  // Toppscorer
+  html += statsSection('👟', 'Hvem blir Norges toppscorer?', 'Norges toppscorer', ans.topscorer || '',
+    buildVotes('topscorer', normPlayer), ans.topscorer ? normPlayer(ans.topscorer) : null);
+
+  // Hvor langt kommer Norge
+  html += statsSection('🗺️', 'Hvor langt kommer Norge?', 'Hvor langt kom Norge', ans.howfar || '',
+    buildVotes('howfar', v => v.trim()), ans.howfar ? ans.howfar.trim() : null);
 
   // Målscorer per kamp
   scorerSections.forEach(({ label, list, correctKey, correctRaw }) => {
