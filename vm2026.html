@@ -1176,11 +1176,42 @@ async function loadLeaderboard() {
     }
   }
 
+  function calcScoreBreakdown(pred) {
+    const s = pred.special || {};
+    const ans = adminAnswers.special || {};
+    let specPts = 0, matchPts = 0, scorerPts = 0, bracketPts = 0;
+    if (ans.winner    && s.winner    && norm(ans.winner)    === norm(s.winner))    specPts += 200;
+    if (ans.finalist  && s.finalist  && norm(ans.finalist)  === norm(s.finalist))  specPts += 100;
+    if (ans.firstgoal && s.firstgoal && normPlayer(ans.firstgoal) === normPlayer(s.firstgoal)) specPts += 100;
+    if (ans.totalgoals && s.totalgoals && String(ans.totalgoals).trim() === String(s.totalgoals).trim()) specPts += 100;
+    if (ans.topscorer && s.topscorer && normPlayer(ans.topscorer) === normPlayer(s.topscorer)) specPts += 50;
+    if (ans.howfar    && s.howfar    && ans.howfar === s.howfar) specPts += 75;
+    NORWAY_SCORER_MATCHES.forEach(({ key }) => {
+      if (ans[key] && s[key] && normPlayer(ans[key]) === normPlayer(s[key])) scorerPts += 100;
+    });
+    const ma = adminAnswers.matches || {};
+    Object.entries(pred.matches || {}).forEach(([mid, mp]) => {
+      if (!ma[mid]) return;
+      const ah = parseInt(ma[mid].home), aa = parseInt(ma[mid].away);
+      const ph = parseInt(mp.home), pa = parseInt(mp.away);
+      if (isNaN(ah)||isNaN(aa)||isNaN(ph)||isNaN(pa)) return;
+      if (ph === ah && pa === aa) { matchPts += 5; return; }
+      const sign = (x,y) => x>y?1:x<y?-1:0;
+      if (sign(ph,pa) === sign(ah,aa)) matchPts += 2;
+    });
+    const bpicks = pred.bracket || {};
+    (adminAnswers.koMatches || []).forEach(m => {
+      if (!m.winner) return;
+      const pick = bpicks[m.id];
+      if (pick && norm(pick) === norm(m.winner)) bracketPts += (m.roundPts || 0);
+    });
+    return { specPts, matchPts, scorerPts, bracketPts, total: specPts + matchPts + scorerPts + bracketPts };
+  }
+
   const scores = Object.entries(allPreds).map(([name, pred]) => ({
-    name, pts: calcScore(pred)
+    name, ...calcScoreBreakdown(pred)
   }));
-  scores.sort((a, b) => b.pts - a.pts);
-  const maxPts = scores.length ? Math.max(1, scores[0].pts) : 1;
+  scores.sort((a, b) => b.total - a.total);
 
   if (!scores.length) {
     listEl.innerHTML = '<p style="color:#888">Ingen deltakere ennå.</p>';
@@ -1188,17 +1219,34 @@ async function loadLeaderboard() {
   }
 
   const medals = ['🥇','🥈','🥉'];
-  listEl.innerHTML = scores.map((s, i) => {
-    const isMe = s.name === currentUser;
-    const pct = Math.max(2, Math.round(s.pts / maxPts * 100));
-    return '<div class="lb-row">' +
-      '<div class="lb-rank">' + (medals[i] || (i+1)) + '</div>' +
-      '<div class="lb-name' + (isMe ? ' is-me' : '') + '">' + escHtml(s.name) +
-        (isMe ? ' <span class="badge badge-blue">deg</span>' : '') + '</div>' +
-      '<div class="lb-bar-wrap"><div class="lb-bar" style="width:' + pct + '%"></div></div>' +
-      '<div class="lb-points">' + s.pts + 'p</div>' +
-      '</div>';
-  }).join('');
+  const maxPts = Math.max(1, scores[0].total);
+  const hasSluttspill = scores.some(s => s.bracketPts > 0);
+
+  listEl.innerHTML = '<div style="overflow-x:auto"><table class="rules-table" style="min-width:460px"><thead><tr>' +
+    '<th style="text-align:left">Plass</th>' +
+    '<th style="text-align:left">Navn</th>' +
+    '<th title="Poeng fra kamptipper">Kamper</th>' +
+    '<th title="VM-vinner, finalist, Norges mål osv">Spesial</th>' +
+    '<th title="Norges 1. målscorer per kamp">🇳🇴 Scorer</th>' +
+    '<th title="Sluttspill-tipping">🏆 Slutt</th>' +
+    '<th>Totalt</th>' +
+    '</tr></thead><tbody>' +
+    scores.map((s, i) => {
+      const isMe = s.name === currentUser;
+      const pct = Math.max(2, Math.round(s.total / maxPts * 100));
+      return '<tr' + (isMe ? ' style="background:#e8f4e8;font-weight:700"' : '') + '>' +
+        '<td style="white-space:nowrap">' + (medals[i] || (i + 1) + '.') + '</td>' +
+        '<td style="white-space:nowrap">' + escHtml(s.name) + (isMe ? ' <span class="badge badge-blue">deg</span>' : '') + '</td>' +
+        '<td>' + s.matchPts + 'p</td>' +
+        '<td>' + s.specPts + 'p</td>' +
+        '<td>' + s.scorerPts + 'p</td>' +
+        '<td>' + s.bracketPts + 'p</td>' +
+        '<td><strong style="color:var(--red)">' + s.total + 'p</strong>' +
+          '<div style="margin-top:3px;height:6px;border-radius:3px;background:#e4e8f0"><div style="height:6px;border-radius:3px;width:' + pct + '%;background:linear-gradient(90deg,var(--blue),var(--red))"></div></div>' +
+          '</td>' +
+        '</tr>';
+    }).join('') +
+    '</tbody></table></div>';
 
   // Last statistikk med samme allPreds-data
   loadStats(allPreds);
@@ -1268,34 +1316,6 @@ async function loadStats(existingPreds) {
   const names = Object.keys(allPreds);
   if (!names.length) { el.innerHTML = '<p style="color:#888">Ingen deltakere ennå.</p>'; return; }
   const ans = adminAnswers.special || {};
-  const ma  = adminAnswers.matches  || {};
-
-  // --- Poengfordeling per kategori ---
-  const rows = names.map(name => {
-    const pred = allPreds[name];
-    const s    = pred.special || {};
-    let specPts = 0, matchPts = 0, scorerPts = 0;
-    if (ans.winner    && s.winner    && norm(ans.winner)    === norm(s.winner))    specPts += 200;
-    if (ans.finalist  && s.finalist  && norm(ans.finalist)  === norm(s.finalist))  specPts += 100;
-    if (ans.firstgoal && s.firstgoal && normPlayer(ans.firstgoal) === normPlayer(s.firstgoal)) specPts += 100;
-    if (ans.totalgoals && s.totalgoals && String(ans.totalgoals).trim() === String(s.totalgoals).trim()) specPts += 100;
-    if (ans.topscorer && s.topscorer && normPlayer(ans.topscorer) === normPlayer(s.topscorer)) specPts += 50;
-    if (ans.howfar    && s.howfar    && ans.howfar === s.howfar) specPts += 75;
-    NORWAY_SCORER_MATCHES.forEach(({ key }) => {
-      if (ans[key] && s[key] && normPlayer(ans[key]) === normPlayer(s[key])) scorerPts += 100;
-    });
-    Object.entries(pred.matches || {}).forEach(([mid, mp]) => {
-      if (!ma[mid]) return;
-      const ah = parseInt(ma[mid].home), aa = parseInt(ma[mid].away);
-      const ph = parseInt(mp.home),      pa = parseInt(mp.away);
-      if (isNaN(ah)||isNaN(aa)||isNaN(ph)||isNaN(pa)) return;
-      if (ph === ah && pa === aa) { matchPts += 5; return; }
-      const sign = (x,y) => x>y?1:x<y?-1:0;
-      if (sign(ph,pa) === sign(ah,aa)) matchPts += 2;
-    });
-    return { name, specPts, matchPts, scorerPts, total: specPts + matchPts + scorerPts };
-  });
-  rows.sort((a, b) => b.total - a.total);
 
   // --- Toppscorer-oversikt ---
   const topscorerVotes = {};
@@ -1347,22 +1367,6 @@ async function loadStats(existingPreds) {
   };
 
   let html = '';
-
-  // Poengfordeling
-  html += '<h4 style="color:var(--blue);margin-bottom:10px">📊 Poengfordeling per deltaker</h4>';
-  html += '<div style="overflow-x:auto"><table class="rules-table"><thead><tr>' +
-    '<th>Navn</th><th title="Poeng fra kamptipper">Kamper</th><th title="VM-vinner, finalist, Norges mål osv">Spesial</th><th title="Norges 1. målscorer per kamp">Scorer 🇳🇴</th><th>Totalt</th></tr></thead><tbody>';
-  rows.forEach((r, i) => {
-    const medals = ['🥇','🥈','🥉'];
-    const isMe = r.name === currentUser;
-    html += '<tr' + (isMe ? ' style="background:#e8f4e8;font-weight:700"' : '') + '>' +
-      '<td>' + (medals[i] || (i+1) + '.') + ' ' + escHtml(r.name) + (isMe ? ' <span class="badge badge-blue">deg</span>' : '') + '</td>' +
-      '<td>' + r.matchPts + 'p</td>' +
-      '<td>' + r.specPts + 'p</td>' +
-      '<td>' + r.scorerPts + 'p</td>' +
-      '<td><strong>' + r.total + 'p</strong></td></tr>';
-  });
-  html += '</tbody></table></div>';
 
   // Helper: build votes map from a field, with optional normalizer
   function buildVotes(field, normalizer) {
