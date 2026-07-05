@@ -733,7 +733,7 @@ const NORWAY_SCORER_MATCHES = [
   { key: 'scorer_gI12',   matchId: 'g_I_1_2',  label: 'Irak vs Norge (16. juni)',       kickoff: new Date('2026-06-16T22:00:00Z') },
   { key: 'scorer_gI23',   matchId: 'g_I_2_3',  label: 'Norge vs Senegal (23. juni)',    kickoff: new Date('2026-06-23T00:00:00Z') },
   { key: 'scorer_gI02',   matchId: 'g_I_0_2',  label: 'Frankrike vs Norge (26. juni)', kickoff: new Date('2026-06-26T19:00:00Z') },
-  { key: 'scorer_r16_nor',matchId: 'r16_nor',  label: 'Norge – 8-delsfinale',           kickoff: new Date('2026-07-04T00:00:00Z') },
+  { key: 'scorer_r16_nor',matchId: 'r16_nor',  label: 'Norge – 8-delsfinale',           kickoff: new Date('2026-07-07T00:00:00Z') },
 ];
 
 // ===== KNOCKOUT BRACKET DEFINITIONS =====
@@ -913,6 +913,14 @@ const MATCH_KICKOFFS = {
 const DEFAULT_FUTURE = new Date('2026-07-20T00:00:00Z');
 function getMatchKickoff(mid) {
   if (MATCH_KICKOFFS[mid]) return MATCH_KICKOFFS[mid];
+  // For Norway KO scorer matches, look up kickoff from ESPN koMatches data
+  if (mid === 'r16_nor') {
+    const m = (adminAnswers.koMatches || []).find(m =>
+      m.round === 'r16' && (m.t1 === 'Norge' || m.t2 === 'Norge' ||
+        (m.t1 || '').toLowerCase() === 'norway' || (m.t2 || '').toLowerCase() === 'norway')
+    );
+    if (m && m.kickoff) return new Date(m.kickoff);
+  }
   const nm = NORWAY_SCORER_MATCHES.find(m => m.matchId === mid);
   if (nm) return nm.kickoff;
   return DEFAULT_FUTURE;
