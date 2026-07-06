@@ -1230,24 +1230,23 @@ async function loadLeaderboard() {
   const maxPts = Math.max(1, scores[0].total);
   const hasSluttspill = scores.some(s => s.bracketPts > 0);
 
-  listEl.innerHTML = '<div style="overflow-x:auto"><table class="rules-table" style="min-width:460px"><thead><tr>' +
-    '<th style="text-align:left">Plass</th>' +
+  listEl.innerHTML = '<div style="overflow-x:auto"><table class="rules-table"><thead><tr>' +
+    '<th style="text-align:left">#</th>' +
     '<th style="text-align:left">Navn</th>' +
     '<th title="Poeng fra kamptipper">Kamper</th>' +
-    '<th title="VM-vinner, finalist, Norges mål osv">Spesial</th>' +
-    '<th title="Norges 1. målscorer per kamp">🇳🇴 Scorer</th>' +
-    '<th title="Sluttspill-tipping">🏆 Slutt</th>' +
+    '<th title="Spesialspørsmål + Norges målscorere">Mine tips</th>' +
+    '<th title="Sluttspill-tipping">Slutt&shy;spill</th>' +
     '<th>Totalt</th>' +
     '</tr></thead><tbody>' +
     scores.map((s, i) => {
       const isMe = s.name === currentUser;
       const pct = Math.max(2, Math.round(s.total / maxPts * 100));
+      const mineTips = s.specPts + s.scorerPts;
       return '<tr' + (isMe ? ' style="background:#e8f4e8;font-weight:700"' : '') + '>' +
-        '<td style="white-space:nowrap">' + (medals[i] || (i + 1) + '.') + '</td>' +
+        '<td style="white-space:nowrap;font-size:1rem">' + (medals[i] || (i + 1) + '.') + '</td>' +
         '<td style="white-space:nowrap">' + escHtml(s.name) + (isMe ? ' <span class="badge badge-blue">deg</span>' : '') + '</td>' +
         '<td>' + s.matchPts + 'p</td>' +
-        '<td>' + s.specPts + 'p</td>' +
-        '<td>' + s.scorerPts + 'p</td>' +
+        '<td>' + mineTips + 'p</td>' +
         '<td>' + s.bracketPts + 'p</td>' +
         '<td><strong style="color:var(--red)">' + s.total + 'p</strong>' +
           '<div style="margin-top:3px;height:6px;border-radius:3px;background:#e4e8f0"><div style="height:6px;border-radius:3px;width:' + pct + '%;background:linear-gradient(90deg,var(--blue),var(--red))"></div></div>' +
