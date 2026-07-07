@@ -528,6 +528,36 @@
       </select>
       <div id="lock_scorer_r16_nor" style="font-size:0.82rem;margin-top:4px"></div>
     </div>
+    <div class="special-item">
+      <label id="lbl_scorer_qf_nor">Norge vs England – kvartfinale <span class="points">100p</span></label>
+      <select id="sq_scorer_qf_nor" autocomplete="off" onchange="autoSave()">
+        <option value="">-- Velg spiller --</option>
+        <option value="Erling Braut Haaland">Erling Braut Haaland</option>
+        <option value="Martin Ødegaard">Martin Ødegaard</option>
+        <option value="Antonio Nusa">Antonio Nusa</option>
+        <option value="Alexander Sørloth">Alexander Sørloth</option>
+        <option value="Jørgen Strand Larsen">Jørgen Strand Larsen</option>
+        <option value="Oscar Bobb">Oscar Bobb</option>
+        <option value="Andreas Schjelderup">Andreas Schjelderup</option>
+        <option value="Jens Petter Hauge">Jens Petter Hauge</option>
+        <option value="Thelo Aasgaard">Thelo Aasgaard</option>
+        <option value="Sander Berge">Sander Berge</option>
+        <option value="Patrick Berg">Patrick Berg</option>
+        <option value="Kristian Thorstvedt">Kristian Thorstvedt</option>
+        <option value="Morten Thorsby">Morten Thorsby</option>
+        <option value="Fredrik Aursnes">Fredrik Aursnes</option>
+        <option value="Kristoffer Ajer">Kristoffer Ajer</option>
+        <option value="Julian Ryerson">Julian Ryerson</option>
+        <option value="Leo Østigård">Leo Østigård</option>
+        <option value="Marcus Holmgren Pedersen">Marcus Holmgren Pedersen</option>
+        <option value="David Møller Wolfe">David Møller Wolfe</option>
+        <option value="Fredrik Bjørkan">Fredrik Bjørkan</option>
+        <option value="Torbjørn Heggem">Torbjørn Heggem</option>
+        <option value="Sondre Langås">Sondre Langås</option>
+        <option value="Ingen norsk scorer">Ingen norsk scorer</option>
+      </select>
+      <div id="lock_scorer_qf_nor" style="font-size:0.82rem;margin-top:4px"></div>
+    </div>
   </div>
   <div style="display:none">
     <datalist id="norwayPlayersList">
@@ -635,6 +665,7 @@
         <div class="admin-input-row"><label>Norges 1. m&#229;lscorer – Norge vs Senegal:</label><input type="text" id="adm_scorer_gI23" placeholder="Spiller" list="norwayPlayersList" /></div>
         <div class="admin-input-row"><label>Norges 1. m&#229;lscorer – Frankrike vs Norge:</label><input type="text" id="adm_scorer_gI02" placeholder="Spiller" list="norwayPlayersList" /></div>
         <div class="admin-input-row"><label>Norges 1. m&#229;lscorer – 8-delsfinale:</label><input type="text" id="adm_scorer_r16_nor" placeholder="Spiller" list="norwayPlayersList" /></div>
+        <div class="admin-input-row"><label>Norges 1. m&#229;lscorer – kvartfinale vs England:</label><input type="text" id="adm_scorer_qf_nor" placeholder="Spiller" list="norwayPlayersList" /></div>
         <div class="admin-input-row"><label>Hvor langt kom Norge:</label>
           <select id="adm_howfar">
             <option value="">-- Ikke satt --</option>
@@ -734,6 +765,7 @@ const NORWAY_SCORER_MATCHES = [
   { key: 'scorer_gI23',   matchId: 'g_I_2_3',  label: 'Norge vs Senegal (23. juni)',    kickoff: new Date('2026-06-23T00:00:00Z') },
   { key: 'scorer_gI02',   matchId: 'g_I_0_2',  label: 'Frankrike vs Norge (26. juni)', kickoff: new Date('2026-06-26T19:00:00Z') },
   { key: 'scorer_r16_nor',matchId: 'r16_nor',  label: 'Norge – 8-delsfinale',           kickoff: new Date('2026-07-07T00:00:00Z') },
+  { key: 'scorer_qf_nor', matchId: 'qf_nor',   label: 'Norge vs England – kvartfinale', kickoff: new Date('2026-07-12T00:00:00Z') },
 ];
 
 // ===== KNOCKOUT BRACKET DEFINITIONS =====
@@ -914,9 +946,10 @@ const DEFAULT_FUTURE = new Date('2026-07-20T00:00:00Z');
 function getMatchKickoff(mid) {
   if (MATCH_KICKOFFS[mid]) return MATCH_KICKOFFS[mid];
   // For Norway KO scorer matches, look up kickoff from ESPN koMatches data
-  if (mid === 'r16_nor') {
+  if (mid === 'r16_nor' || mid === 'qf_nor') {
+    const round = mid === 'r16_nor' ? 'r16' : 'qf';
     const m = (adminAnswers.koMatches || []).find(m =>
-      m.round === 'r16' && (m.t1 === 'Norge' || m.t2 === 'Norge' ||
+      m.round === round && (m.t1 === 'Norge' || m.t2 === 'Norge' ||
         (m.t1 || '').toLowerCase() === 'norway' || (m.t2 || '').toLowerCase() === 'norway')
     );
     if (m && m.kickoff) return new Date(m.kickoff);
@@ -1113,7 +1146,7 @@ function showAdminLogin() {
   if (pw === 'vm2026') {
     document.getElementById('adminArea').style.display = '';
     const s = adminAnswers.special || {};
-    ['winner','finalist','firstgoal','totalgoals','topscorer','howfar','scorer_gI12','scorer_gI23','scorer_gI02','scorer_r16_nor'].forEach(k => {
+    ['winner','finalist','firstgoal','totalgoals','topscorer','howfar','scorer_gI12','scorer_gI23','scorer_gI02','scorer_r16_nor','scorer_qf_nor'].forEach(k => {
       const el = document.getElementById('adm_' + k);
       if (el) el.value = s[k] || '';
     });
@@ -1151,6 +1184,7 @@ async function saveAdminAnswers() {
     scorer_gI23:    field('adm_scorer_gI23'),
     scorer_gI02:    field('adm_scorer_gI02'),
     scorer_r16_nor: field('adm_scorer_r16_nor'),
+    scorer_qf_nor:  field('adm_scorer_qf_nor'),
   };
   if (demoMode) {
     localStorage.setItem('vm2026_admin', JSON.stringify(adminAnswers));
@@ -2010,12 +2044,12 @@ async function manualFetchScorers() {
   if (el) el.textContent = '⏳ Henter scorere fra ESPN...';
   await fetchNorwayScorers();
   const s = adminAnswers.special || {};
-  ['firstgoal','totalgoals','scorer_gI12','scorer_gI23','scorer_gI02','scorer_r16_nor'].forEach(k => {
+  ['firstgoal','totalgoals','scorer_gI12','scorer_gI23','scorer_gI02','scorer_r16_nor','scorer_qf_nor'].forEach(k => {
     const el2 = document.getElementById('adm_' + k);
     if (el2 && s[k]) el2.value = s[k];
   });
   if (el) {
-    const scorers = ['scorer_gI12','scorer_gI23','scorer_gI02','scorer_r16_nor']
+    const scorers = ['scorer_gI12','scorer_gI23','scorer_gI02','scorer_r16_nor','scorer_qf_nor']
       .filter(k => s[k]).map(k => s[k]);
     el.textContent = scorers.length
       ? '✅ Hentet: ' + scorers.join(', ')
@@ -2057,10 +2091,9 @@ async function fetchNorwayScorers() {
   for (const m of koNorway) {
     const result = await fetchScorerForEventId(m.id);
     if (!result) continue;
-    // R16 er scorer_r16_nor, videre runder kan legges til
-    if (m.round === 'r16') {
-      if (result.firstScorer) { adminAnswers.special['scorer_r16_nor'] = result.firstScorer; updated = true; }
-    }
+    const roundKeyMap = { r16: 'scorer_r16_nor', qf: 'scorer_qf_nor', sf: 'scorer_sf_nor', final: 'scorer_final_nor' };
+    const scorerKey = roundKeyMap[m.round];
+    if (scorerKey && result.firstScorer) { adminAnswers.special[scorerKey] = result.firstScorer; updated = true; }
     totalNorwayGoals += result.norwayGoals;
   }
 
