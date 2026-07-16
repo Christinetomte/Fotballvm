@@ -2058,21 +2058,39 @@ async function manualFetchScorers() {
 }
 
 // ===== AUTOMATISK HENTING AV NORGES SCORERE =====
-// Henter scorer-data fra ESPNs summary-API for hvert kamp Norge har spilt
 async function fetchNorwayScorers() {
-  // Gruppe-kampene til Norge med kjente datoer
+  if (!adminAnswers.special) adminAnswers.special = {};
+
+  // Alle Norges kamper: gruppespill (kjente datoer) + sluttspill (søk per dato-rekke)
   const groupMatches = [
     { dateStr: '20260616', key: 'scorer_gI12' },
     { dateStr: '20260623', key: 'scorer_gI23' },
     { dateStr: '20260626', key: 'scorer_gI02' },
   ];
+  // KO-runder: dato-rekker å søke i → hvilken scorer-nøkkel de tilhører
+  const koDateRanges = [
+    { range: '20260628-20260707', round: 'r16', key: 'scorer_r16_nor' },
+    { range: '20260708-20260712', round: 'qf',  key: 'scorer_qf_nor'  },
+    { range: '20260713-20260716', round: 'sf',  key: 'scorer_sf_nor'  },
+    { range: '20260717-20260720', round: 'final',key:'scorer_final_nor'},
+  ];
 
   let totalNorwayGoals = 0;
   let firstVMGoaler = '';
   let updated = false;
-  if (!adminAnswers.special) adminAnswers.special = {};
 
-  // Finn ESPN event-ID for hvert kamp og hent scorer
+  // Hjelpefunksjon: finn Norges kamp i en liste av events
+  function findNorwayEvent(events) {
+    for (const ev of events) {
+      const comp = ev.competitions?.[0];
+      if (!comp) continue;
+      const isNor = comp.competitors?.some(c => isNorwayTeam(c.team));
+      if (isNor && comp.status.type.completed) return ev;
+    }
+    return null;
+  }
+
+  // Gruppespill
   for (const { dateStr, key } of groupMatches) {
     const result = await fetchScorerForDate(dateStr);
     if (!result) continue;
@@ -2084,27 +2102,40 @@ async function fetchNorwayScorers() {
     totalNorwayGoals += result.norwayGoals;
   }
 
-  // Sjekk om Norge har spilt i sluttspillet (fra koMatches)
-  const koNorway = (adminAnswers.koMatches || []).filter(m =>
-    m.completed && (m.t1 === 'Norge' || m.t2 === 'Norge')
-  );
-  for (const m of koNorway) {
-    const result = await fetchScorerForEventId(m.id);
-    if (!result) continue;
-    const roundKeyMap = { r16: 'scorer_r16_nor', qf: 'scorer_qf_nor', sf: 'scorer_sf_nor', final: 'scorer_final_nor' };
-    const scorerKey = roundKeyMap[m.round];
-    if (scorerKey && result.firstScorer) { adminAnswers.special[scorerKey] = result.firstScorer; updated = true; }
-    totalNorwayGoals += result.norwayGoals;
+  // KO-runder: søk ESPN direkte per dato-rekke
+  for (const { range, key } of koDateRanges) {
+    try {
+      const resp = await fetch(
+        'https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard?dates=' + range + '&limit=50'
+      );
+      if (!resp.ok) continue;
+      const data = await resp.json();
+      const ev = findNorwayEvent(data.events || []);
+      if (!ev) continue;
+      const result = await fetchScorerForEventId(ev.id);
+      if (!result) continue;
+      if (result.firstScorer && !adminAnswers.special[key]) {
+        adminAnswers.special[key] = result.firstScorer;
+        updated = true;
+      }
+      if (!firstVMGoaler) firstVMGoaler = result.firstScorer;
+      totalNorwayGoals += result.norwayGoals;
+    } catch(e) {}
   }
 
-  // Sett totalgoals og firstgoal automatisk
-  if (totalNorwayGoals > 0) {
-    adminAnswers.special.totalgoals = String(totalNorwayGoals);
-    updated = true;
-  }
+  // Sett firstgoal om ikke satt manuelt
   if (firstVMGoaler && !adminAnswers.special.firstgoal) {
     adminAnswers.special.firstgoal = firstVMGoaler;
     updated = true;
+  }
+
+  // Sett totalgoals — ta den høyeste av auto-talt og manuelt satt
+  if (totalNorwayGoals > 0) {
+    const existing = parseInt(adminAnswers.special.totalgoals) || 0;
+    if (totalNorwayGoals > existing) {
+      adminAnswers.special.totalgoals = String(totalNorwayGoals);
+      updated = true;
+    }
   }
 
   if (updated && !demoMode) {
